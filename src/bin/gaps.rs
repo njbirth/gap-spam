@@ -13,17 +13,10 @@ GNU General Public License for more details.
 You should have received a copy of the GNU General Public License
 along with this program.  If not, see <https://www.gnu.org/licenses/>. */
 
-use gaps_rs::opt::Opt;
+use gaps_rs::opt::Gaps;
 use structopt::StructOpt;
 
 fn main() {
-	let opt = Opt::from_args();
-	match opt {
-		Opt::QTrees(opt_qtrees) => {
-			gaps_rs::run_qtrees(opt_qtrees).unwrap();
-		},
-		Opt::Pars(opt_pars) => {
-			gaps_rs::run_pars(opt_pars).unwrap();
-		},
-	}
+	let opt = Gaps::from_args();
+	gaps_rs::run(opt).unwrap();
 }

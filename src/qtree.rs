@@ -126,6 +126,19 @@ impl QTree {
 			self.blocks.1[3].position as i64 - self.blocks.0[3].position as i64
 		]
 	}
+
+	pub fn from_pairs(pairs: &Vec<(PBlock, PBlock)>) -> Vec<QTree> {
+		let mut result = Vec::new();
+
+		for pair in pairs {
+			let tree = QTree::new(&pair.0, &pair.1);
+			if tree.is_some() {
+				result.push(tree.unwrap());
+			}
+		}
+
+		result
+	}
 }
 
 impl fmt::Display for QTree {

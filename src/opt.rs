@@ -19,60 +19,33 @@ use structopt::StructOpt;
 
 #[derive(Debug, StructOpt)]
 #[structopt(name = "gaps", about = "Mind the gap!")]
-pub enum Opt {
-	/// Constructs quartet trees from P-blocks
-	#[structopt(name = "qtrees")]
-	QTrees(QTrees),
-	/// Convert PBlocks to an outfile for phylip pars
-	#[structopt(name = "pars")]
-	Pars(Pars),
-}
-
-#[derive(StructOpt, Debug)]
-pub struct QTrees {
-	/// output file for quartet trees
-	#[structopt(short = "o", default_value = "outfile")]
-	pub outfile: String,
-	/// pattern for additional blocks
-	#[structopt(short = "p", long = "pattern", default_value = "1111111")]
-	pub pattern: String,
-	/// search for additional QTrees
-	#[structopt(short = "a")]
-	pub additional_trees: bool,
-	/// range for -a
-	#[structopt(long = "range", default_value = "500")]
-	pub range: i64,
+pub struct Gaps {
 	/// input file with P-blocks
-	#[structopt()]
+	#[structopt(short = "i")]
 	pub infile: String,
 	/// sequence file (FASTA)
-	#[structopt()]
+	#[structopt(short = "f")]
 	pub fastafile: String,
-}
-
-#[derive(StructOpt, Debug)]
-pub struct Pars {
-	/// output file for quartet trees
+	/// output file
 	#[structopt(short = "o", default_value = "outfile")]
 	pub outfile: String,
-	/// pattern for additional blocks
-	#[structopt(short = "p", long = "pattern", default_value = "1111111")]
-	pub pattern: String,
-	/// search for additional pairs
-	#[structopt(short = "a")]
-	pub additional_pairs: bool,
-	/// range for -a
-	#[structopt(long = "range", default_value = "500")]
-	pub range: i64,
-	/// input file with P-blocks
-	#[structopt()]
-	pub infile: String,
-	/// sequence file (FASTA)
-	#[structopt()]
-	pub fastafile: String,
-	/// P block size (0 for variable size)
+
+	/// Write outfile for phylip pars instead of writing quartet trees
+	#[structopt(long = "pars")]
+	pub pars: bool,
+	/// P block size (0 for variable size; always 4 if --pars is not set)
 	#[structopt(short = "s", default_value = "0")]
 	pub blocksize: u32,
+
+	/// search for additional pairs
+	#[structopt(short = "a")]
+	pub additional: bool,
+	/// pattern for additional blocks (ignored if -a is not set)
+	#[structopt(short = "p", long = "pattern", default_value = "1111111")]
+	pub pattern: String,
+	/// range for -a (ignored if -a is not set)
+	#[structopt(long = "range", default_value = "500")]
+	pub range: i64,
 }
 
 // === Options for nwk-binary ==================================================
