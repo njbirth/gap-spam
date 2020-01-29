@@ -15,8 +15,10 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>. */
 
 use structopt::StructOpt;
 
+// === Options for gaps-binary =================================================
+
 #[derive(Debug, StructOpt)]
-#[structopt(name = "gaps_rust", about = "Mind the gap!")]
+#[structopt(name = "gaps", about = "Mind the gap!")]
 pub enum Opt {
 	/// Constructs quartet trees from P-blocks
 	#[structopt(name = "qtrees")]
@@ -24,9 +26,6 @@ pub enum Opt {
 	/// Convert PBlocks to an outfile for phylip pars
 	#[structopt(name = "pars")]
 	Pars(Pars),
-	/// Constructs a tree from quartet trees
-	#[structopt(name = "nwk")]
-	Nwk(Nwk),
 }
 
 #[derive(StructOpt, Debug)]
@@ -76,7 +75,10 @@ pub struct Pars {
 	pub blocksize: u32,
 }
 
+// === Options for nwk-binary ==================================================
+
 #[derive(StructOpt, Debug)]
+#[structopt(name = "nwk", about = "Construct a tree from quartet trees (requires quartet-max-cut to be in path)")]
 pub struct Nwk {
 	/// use phylip pars instead of max-cut (requires applicable input file)
 	#[structopt(long = "pars")]

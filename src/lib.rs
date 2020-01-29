@@ -163,16 +163,6 @@ pub fn run_pars(opt: crate::opt::Pars) -> Result<(), String> {
     Ok(())
 }
 
-pub fn run_nwk(opt: crate::opt::Nwk) -> Result<(), String> {
-	if opt.pars {
-		println!("pars not implemented yet!");
-		return Ok(())
-	}
-
-	println!("{}", build_tree::max_cut_from_file(&opt.infile));
-	Ok(())
-}
-
 // ========================================================
 
 pub mod build_tree;

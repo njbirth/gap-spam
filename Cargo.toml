@@ -1,8 +1,9 @@
 [package]
-name = "gaps_rust"
+name = "gaps_rs"
 version = "0.1.0"
 authors = ["Niklas Birth <birth@posteo.de>"]
 edition = "2018"
+default-run = "gaps"
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 

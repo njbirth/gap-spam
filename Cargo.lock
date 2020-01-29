@@ -100,7 +100,7 @@ version = "0.1.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 
 [[package]]
-name = "gaps_rust"
+name = "gaps_rs"
 version = "0.1.0"
 dependencies = [
  "needletail 0.3.2 (registry+https://github.com/rust-lang/crates.io-index)",
