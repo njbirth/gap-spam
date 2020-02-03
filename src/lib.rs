@@ -63,15 +63,15 @@ pub fn run(opt: crate::opt::Gaps) -> Result<(), String> {
 		print!("- Collect additional pairs");
 		stdout().flush().unwrap();
 		sw.restart();
-		let mut blockfile = File::create("outfile_blocks_debug").expect("Unable to create file");
+		//let mut blockfile = File::create("outfile_blocks_debug").expect("Unable to create file");
 		let mut additional_pairs: Vec<(PBlock, PBlock)> = Vec::new();
 		for i in 0..additional_blocks.len() {
 			print!("\r- Collect additional pairs\t({}/{})", i, additional_blocks.len());
 			stdout().flush().unwrap();
 			let mut new_blocks = PBlock::find_matching_pblocks(&additional_blocks[i], &sequences, &opt.pattern, opt.range);
 			new_blocks.sort_unstable_by(|a, b| a[0].position.cmp(&b[0].position));
-			blockfile.write_all(format!("#{}", PBlock::blocks_to_string(&vec![additional_blocks[i].clone()])).as_bytes()).expect("Unable to write data");
-			blockfile.write_all(format!("{}\n", PBlock::blocks_to_string(&new_blocks)).as_bytes()).expect("Unable to write data");
+			//blockfile.write_all(format!("#{}", PBlock::blocks_to_string(&vec![additional_blocks[i].clone()])).as_bytes()).expect("Unable to write data");
+			//blockfile.write_all(format!("{}\n", PBlock::blocks_to_string(&new_blocks)).as_bytes()).expect("Unable to write data");
 			let mut new_pairs = PBlock::pairs_from_vector(&mut new_blocks);
 			additional_pairs.append(&mut new_pairs);
 		}
