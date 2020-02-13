@@ -16,7 +16,6 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>. */
 use stopwatch::Stopwatch;
 use std::io::Write;
 use std::io::stdout;
-use std::fs::File;
 
 pub fn run(opt: crate::opt::Gaps) -> Result<(), String> {
 	let time_all = Stopwatch::start_new();

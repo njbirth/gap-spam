@@ -60,3 +60,13 @@ pub struct Nwk {
 	#[structopt()]
 	pub infile: String
 }
+
+// === Options for rfdist-binary ===============================================
+
+#[derive(StructOpt, Debug)]
+#[structopt(name = "rfdist", about = "Returns the Robinson-Foulds-distancs between two trees (requires phylip treedist to be in path)")]
+pub struct Rfdist {
+	/// input file (two trees in FASTA format)
+	#[structopt()]
+	pub infile: String
+}
