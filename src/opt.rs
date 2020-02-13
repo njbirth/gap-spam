@@ -37,9 +37,9 @@ pub struct Gaps {
 	#[structopt(short = "s", default_value = "0")]
 	pub blocksize: u32,
 
-	/// search for additional pairs
-	#[structopt(short = "a")]
-	pub additional: bool,
+	/// search for additional pairs (use twice for extended search)
+	#[structopt(short = "a", parse(from_occurrences))]
+	pub additional: u8,
 	/// pattern for additional blocks (ignored if -a is not set)
 	#[structopt(short = "p", long = "pattern", default_value = "1111111")]
 	pub pattern: String,

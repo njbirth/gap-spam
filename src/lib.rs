@@ -49,9 +49,11 @@ pub fn run(opt: crate::opt::Gaps) -> Result<(), String> {
 	let mut pairs: Vec<(PBlock, PBlock)> = Vec::new();
 	let mut additional_blocks = Vec::new();
 	for mut v in input_sorted {
-		if v.len() < 2 {
+		if opt.additional == 1 {
 			additional_blocks.push(v[0].clone());
-			continue;
+		}
+		if opt.additional == 2 {
+			additional_blocks.append(&mut v.clone());
 		}
 		let mut new_pairs = PBlock::pairs_from_vector(&mut v);
 		pairs.append(&mut new_pairs);
@@ -59,22 +61,22 @@ pub fn run(opt: crate::opt::Gaps) -> Result<(), String> {
 	println!("\t\t(Finished in {}s)", sw.elapsed_ms() as f32/1000.0);
 	println!("  => {} PBlock pairs collected", pairs.len());
 
-	if opt.additional {
+	if opt.additional > 0 {
 		print!("- Collect additional pairs");
 		stdout().flush().unwrap();
 		sw.restart();
-		//let mut blockfile = File::create("outfile_blocks_debug").expect("Unable to create file");
 		let mut additional_pairs: Vec<(PBlock, PBlock)> = Vec::new();
+
 		for i in 0..additional_blocks.len() {
 			print!("\r- Collect additional pairs\t({}/{})", i, additional_blocks.len());
 			stdout().flush().unwrap();
-			let mut new_blocks = PBlock::find_matching_pblocks(&additional_blocks[i], &sequences, &opt.pattern, opt.range);
-			new_blocks.sort_unstable_by(|a, b| a[0].position.cmp(&b[0].position));
-			//blockfile.write_all(format!("#{}", PBlock::blocks_to_string(&vec![additional_blocks[i].clone()])).as_bytes()).expect("Unable to write data");
-			//blockfile.write_all(format!("{}\n", PBlock::blocks_to_string(&new_blocks)).as_bytes()).expect("Unable to write data");
-			let mut new_pairs = PBlock::pairs_from_vector(&mut new_blocks);
-			additional_pairs.append(&mut new_pairs);
+			let block = additional_blocks[i].clone();
+			let block2 = PBlock::find_matching_block(&block, &sequences, &opt.pattern, opt.range);
+			if block2.is_some() {
+				additional_pairs.push((block, block2.unwrap()));
+			}
 		}
+
 		let add_pairs = additional_pairs.len();
 		pairs.append(&mut additional_pairs);
 		println!("\r- Collect additional pairs\t(Finished in {}s)", sw.elapsed_ms() as f32/1000.0);
