@@ -14,20 +14,19 @@ You should have received a copy of the GNU General Public License
 along with this program.  If not, see <https://www.gnu.org/licenses/>. */
 
 use gaps_rs::opt::Rfdist;
+use gaps_rs::tools;
 use structopt::StructOpt;
-use std::env;
 use std::fs;
 use std::fs::File;
-use std::path::PathBuf;
-use rand;
 use std::io::Write;
 use std::process::{Command, Stdio};
 use std::io::{BufRead, BufReader};
 
 fn main() {
-	// Create temporary folder
 	let opt = Rfdist::from_args();
-	let tmp_folder = create_tmp_folder();
+	
+	// Create temporary folder
+	let tmp_folder = tools::create_tmp_folder();
 
 	// Copy input file to intree
 	let mut intree_file = tmp_folder.clone();
@@ -59,12 +58,4 @@ fn main() {
 
 	// Delete temporary folder
 	fs::remove_dir_all(tmp_folder).unwrap();
-}
-
-fn create_tmp_folder() -> PathBuf {
-	let mut tmp_dir = env::temp_dir();
-	let r: u64 = rand::random();
-	tmp_dir.push(format!("rfdist_{}", r));
-	fs::create_dir(&tmp_dir).unwrap();
-	tmp_dir
 }

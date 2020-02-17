@@ -114,6 +114,8 @@ pub mod build_tree;
 
 pub mod opt;
 
+pub mod tools;
+
 
 mod qtree;
 pub use self::qtree::QTree;

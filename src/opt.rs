@@ -53,12 +53,18 @@ pub struct Gaps {
 #[derive(StructOpt, Debug)]
 #[structopt(name = "nwk", about = "Construct a tree from quartet trees (requires quartet-max-cut to be in path)")]
 pub struct Nwk {
-	/// use phylip pars instead of max-cut (requires applicable input file)
+	/// use parsimony (requires an input file for phylip pars; paup and seqmagick have to be in path)
 	#[structopt(long = "pars")]
 	pub pars: bool,
 	/// input file with quartet trees
 	#[structopt()]
-	pub infile: String
+	pub infile: String,
+	/// show paup output
+	#[structopt(short = "v")]
+	pub verbose: bool,
+	// show all found trees (paup only; max-cut always returns one tree)
+	#[structopt(long = "all")]
+	pub all: bool
 }
 
 // === Options for rfdist-binary ===============================================
