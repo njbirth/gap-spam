@@ -46,6 +46,10 @@ pub struct Gaps {
 	/// range for -a (ignored if -a is not set)
 	#[structopt(long = "range", default_value = "500")]
 	pub range: i64,
+
+	/// use only perfect pairs (A/A/B/B)
+	#[structopt(long = "perfect")]
+	pub perfect: bool,
 }
 
 // === Options for nwk-binary ==================================================

@@ -82,6 +82,15 @@ pub fn run(opt: crate::opt::Gaps) -> Result<(), String> {
 		println!("  => {} additional pairs collected", add_pairs);
 	}
 
+	if opt.perfect {
+		print!("- Remove imperfect pairs");
+		stdout().flush().unwrap();
+		sw.restart();
+		pairs = pairs.into_iter().filter(|a| PBlock::perfect_pair(&a.0, &a.1)).collect();
+		println!("\t\t\t(Finished in {}s)", sw.elapsed_ms() as f32/1000.0);
+		println!("  => {} pairs remaining", pairs.len());
+	}
+
 	let mut result = Vec::new();
 	if !opt.pars {
 		print!("- Build QTrees");

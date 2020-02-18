@@ -128,6 +128,23 @@ impl PBlock {
 		result
 	}
 
+	/// Returns if block1 and block2 would form a QTree of kind A/A/B/B
+	pub fn perfect_pair(block1: &PBlock, block2: &PBlock) -> bool {
+		if block1.len() != 4 || block2.len() != 4 || block1.len() != block2.len() {
+			return false;
+		}
+
+		let mut d = Vec::new();
+		for i in 0..block1.0.len() {
+			d.push(block1[i].position as i64 - block2[i].position as i64);
+		}
+
+		!(d[0] == d[1] && d[1] == d[2] && d[2] == d[3]) && (
+		(d[0] == d[1] && d[2] == d[3]) ||
+		(d[0] == d[2] && d[1] == d[3]) ||
+		(d[0] == d[3] && d[2] == d[1]) )
+	}
+
 	pub fn get_distances(a: &PBlock, b: &PBlock) -> HashMap<String, i64> {
 		let mut result = HashMap::new();
 		for i in 0..a.0.len() {
