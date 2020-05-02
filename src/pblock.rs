@@ -153,57 +153,7 @@ impl PBlock {
 		result
 	}
 
-	/*pub fn find_matching_pblocks(block: &PBlock, sequences: &HashMap<String, Sequence>, pattern: &str, range: i64) -> Vec<PBlock> {
-		let mut sequences_filtered = Vec::new();
-		for species in block.get_sequence_names() {
-			sequences_filtered.push(&sequences[species]);
-		}
-
-		let mut result = Vec::new();
-
-		let mut spaced_words = Vec::new();
-		for i in 0..block.len() {
-			if block[i].rev_comp {
-				spaced_words.push(sequences_filtered[i].spaced_words(pattern, block[i].position as i64 * -1 - range, block[i].position as i64 * -1 + range, true));
-			}
-			else {
-				spaced_words.push(sequences_filtered[i].spaced_words(pattern, block[i].position as i64 - range, block[i].position as i64 + range, false));
-			}
-			spaced_words[i].sort();
-		}
-
-		for sw in &spaced_words[0] {
-			let mut word_vec = Vec::new();
-			for i in 0..spaced_words.len() {
-				let search = spaced_words[i].binary_search(sw);
-				
-				// If we don't find the spaced word in a sequence, we can't build a p-block out of this word
-				if search.is_err() {
-					break;
-				}
-
-				// If we find a spaced word more than one time, we throw it away, because we can't
-				// decide, which of them is a match
-				if search.unwrap() < spaced_words[i].len() - 1 && spaced_words[i][search.unwrap()] == spaced_words[i][search.unwrap() + 1]
-				|| search.unwrap() > 0 && spaced_words[i][search.unwrap()] == spaced_words[i][search.unwrap() - 1] {
-					break;
-				}
-
-
-				word_vec.push(spaced_words[i][search.unwrap()].clone());
-
-				if i == spaced_words.len() - 1 {
-					result.push(PBlock::from_spaced_words(word_vec));
-					break;
-				}
-			}
-		}
-
-		result
-	}*/
-
-	// huge similarities with find_matching_pblocks; maybe we can merge the two methods
-	pub fn find_matching_block(block: &PBlock, sequences: &HashMap<String, Sequence>, pattern: &str, range: i64) -> Option<PBlock> {
+	pub fn find_matching_block(block: &PBlock, sequences: &HashMap<String, Sequence>, pattern: &str, range: i64, perfect: bool) -> Option<PBlock> {
 		let mut sequences_filtered = Vec::new();
 		for species in block.get_sequence_names() {
 			sequences_filtered.push(&sequences[species]);
@@ -219,6 +169,11 @@ impl PBlock {
 			}
 			if i > 0  {
 				spaced_words[i].sort();
+			}
+			else {
+				if spaced_words[0].len() == 0 {
+					return None;
+				}
 			}
 		}
 
@@ -257,7 +212,7 @@ impl PBlock {
 					let new_block = PBlock::from_spaced_words(word_vec.clone());
 					let tree = QTree::new(&block, &new_block);
 					
-					if tree.is_some() {
+					if tree.is_some() && (!perfect || PBlock::perfect_pair(&block, &new_block)) {
 						return Some(new_block);
 					}
 

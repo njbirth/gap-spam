@@ -13,3 +13,6 @@ stopwatch = "0.0.7"
 needletail = "0.3.2"
 smallvec = "1.0.0"
 rand = "0.5.5"
+
+[profile.release]
+debug = true

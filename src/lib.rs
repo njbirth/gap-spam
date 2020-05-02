@@ -70,7 +70,7 @@ pub fn run(opt: crate::opt::Gaps) -> Result<(), String> {
 			print!("\r- Collect additional pairs\t({}/{})", i, additional_blocks.len());
 			stdout().flush().unwrap();
 			let block = additional_blocks[i].clone();
-			let block2 = PBlock::find_matching_block(&block, &sequences, &opt.pattern, opt.range);
+			let block2 = PBlock::find_matching_block(&block, &sequences, &opt.pattern, opt.range, opt.perfect);
 			if block2.is_some() {
 				additional_pairs.push((block, block2.unwrap()));
 			}
