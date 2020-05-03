@@ -20,29 +20,28 @@ use std::io::stdout;
 pub fn run(opt: crate::opt::Gaps) -> Result<(), String> {
 	let time_all = Stopwatch::start_new();
 
-	print!("- Read FASTA file");
+	if !opt.hide_progress { print!("- Read FASTA file"); }
 	stdout().flush().unwrap();
 	let mut sw = Stopwatch::start_new();
 	let sequences = Sequence::read_fasta_file(&opt.fastafile);
-	println!("\t\t(Finished in {}s)", sw.elapsed_ms() as f32/1000.0);
-	println!("  => {} sequences read", sequences.len());
+	if !opt.hide_progress { println!("\t\t(Finished in {}s)", sw.elapsed_ms() as f32/1000.0); }
+	let rep_sequences = sequences.len();
 
-	print!("- Read PBlock file");
+	if !opt.hide_progress { print!("- Read PBlock file"); }
 	stdout().flush().unwrap();
 	sw.restart();
 	let blocksize = if opt.pars { opt.blocksize } else { 4 };
 	let input: Vec<PBlock> = PBlock::read_from_file(&opt.infile, blocksize);
-	println!("\t\t(Finished in {}s)", sw.elapsed_ms() as f32/1000.0);
-	println!("  => {} PBlocks read", input.len());
+	if !opt.hide_progress { println!("\t\t(Finished in {}s)", sw.elapsed_ms() as f32/1000.0); }
+	let rep_pblocks = input.len();
 
-	print!("- Sort PBlocks");
+	if !opt.hide_progress { print!("- Sort PBlocks"); }
 	stdout().flush().unwrap();
 	sw.restart();
 	let input_sorted: Vec<Vec<PBlock>> = PBlock::split_by_species(input);
-	println!("\t\t\t(Finished in {}s)", sw.elapsed_ms() as f32/1000.0);
-	println!("  => {} different sequence sets", input_sorted.len());
+	if !opt.hide_progress { println!("\t\t\t(Finished in {}s)", sw.elapsed_ms() as f32/1000.0); }
 
-	print!("- Collect PBlock pairs");
+	if !opt.hide_progress { print!("- Collect PBlock pairs"); }
 	stdout().flush().unwrap();
 	sw.restart();
 	let mut pairs: Vec<(PBlock, PBlock)> = Vec::new();
@@ -51,23 +50,26 @@ pub fn run(opt: crate::opt::Gaps) -> Result<(), String> {
 		if opt.additional == 1 {
 			additional_blocks.push(v[0].clone());
 		}
-		if opt.additional == 2 {
+		else if opt.additional == 2 {
 			additional_blocks.append(&mut v.clone());
 		}
-		let mut new_pairs = PBlock::pairs_from_vector(&mut v);
-		pairs.append(&mut new_pairs);
+		else {
+			let mut new_pairs = PBlock::pairs_from_vector(&mut v);
+			pairs.append(&mut new_pairs);
+		}
 	}
-	println!("\t\t(Finished in {}s)", sw.elapsed_ms() as f32/1000.0);
-	println!("  => {} PBlock pairs collected", pairs.len());
+	if !opt.hide_progress { println!("\t\t(Finished in {}s)", sw.elapsed_ms() as f32/1000.0); }
+	let rep_input_pairs = pairs.len();
 
+	let mut rep_add_pairs = 0;
 	if opt.additional > 0 {
-		print!("- Collect additional pairs");
+		if !opt.hide_progress { print!("- Collect additional pairs"); }
 		stdout().flush().unwrap();
 		sw.restart();
 		let mut additional_pairs: Vec<(PBlock, PBlock)> = Vec::new();
 
 		for i in 0..additional_blocks.len() {
-			print!("\r- Collect additional pairs\t({}/{})", i, additional_blocks.len());
+			if !opt.hide_progress { print!("\r- Collect additional pairs\t({}/{})", i, additional_blocks.len()); }
 			stdout().flush().unwrap();
 			let block = additional_blocks[i].clone();
 			let block2 = PBlock::find_matching_block(&block, &sequences, &opt.pattern, opt.range, opt.perfect);
@@ -76,32 +78,41 @@ pub fn run(opt: crate::opt::Gaps) -> Result<(), String> {
 			}
 		}
 
-		let add_pairs = additional_pairs.len();
+		rep_add_pairs = additional_pairs.len();
 		pairs.append(&mut additional_pairs);
-		println!("\r- Collect additional pairs\t(Finished in {}s)", sw.elapsed_ms() as f32/1000.0);
-		println!("  => {} additional pairs collected", add_pairs);
+		if !opt.hide_progress { println!("\r- Collect additional pairs\t(Finished in {}s)", sw.elapsed_ms() as f32/1000.0); }
 	}
 
-	if opt.perfect {
-		print!("- Remove imperfect pairs");
-		stdout().flush().unwrap();
-		sw.restart();
-		pairs = pairs.into_iter().filter(|a| PBlock::perfect_pair(&a.0, &a.1)).collect();
-		println!("\t\t\t(Finished in {}s)", sw.elapsed_ms() as f32/1000.0);
-		println!("  => {} pairs remaining", pairs.len());
-	}
+	if !opt.hide_progress { print!("- Collect report data"); }
+	stdout().flush().unwrap();
+	sw.restart();
+	let rep_count = PBlock::count(&pairs);
+	if !opt.hide_progress { println!("\t\t(Finished in {}s)", sw.elapsed_ms() as f32/1000.0); }
 
-	let mut result = Vec::new();
-	if !opt.pars {
-		print!("- Build QTrees");
-		stdout().flush().unwrap();
-		sw.restart();
-		result = QTree::from_pairs(&pairs);
-		println!("\t\t\t(Finished in {}s)", sw.elapsed_ms() as f32/1000.0);
-		println!("  => {} QTrees built", result.len());
+	if !opt.hide_progress { print!("- Filter pairs"); }
+	stdout().flush().unwrap();
+	sw.restart();
+	pairs = if opt.perfect {
+		pairs.into_iter().filter(|a| PBlock::perfect_pair(&a.0, &a.1)).collect()
 	}
+	else {
+		pairs.into_iter().filter(|a| QTree::new(&a.0, &a.1).is_some()).collect()
+	};
+	if !opt.hide_progress { println!("\t\t\t(Finished in {}s)", sw.elapsed_ms() as f32/1000.0); }
 
-	print!("- Save result to file");
+	if !opt.hide_progress { print!("- Build QTrees"); }
+	stdout().flush().unwrap();
+	sw.restart();
+	let result = QTree::from_pairs(&pairs);
+	let rep_trees = result.len();
+	// result_unique is used for calculating the coverage in the report
+	let mut result_unique = result.clone();
+	result_unique.sort_unstable();
+	result_unique.dedup();
+	let rep_trees_unique = result_unique.len();
+	if !opt.hide_progress { println!("\t\t\t(Finished in {}s)", sw.elapsed_ms() as f32/1000.0); }
+
+	if !opt.hide_progress { print!("- Save result to file"); }
 	stdout().flush().unwrap();
 	sw.restart();
 	if opt.pars {
@@ -110,10 +121,26 @@ pub fn run(opt: crate::opt::Gaps) -> Result<(), String> {
 	else {
 		QTree::save_to_file(&result, &opt.outfile);
 	}
-	println!("\t\t(Finished in {}s)", sw.elapsed_ms() as f32/1000.0);
-	println!("  => ...");
+	if !opt.hide_progress { println!("\t\t(Finished in {}s)", sw.elapsed_ms() as f32/1000.0); }
 
-	println!("\t\t\t\t(Total time: {}s)", time_all.elapsed_ms() as f32/1000.0);
+	if !opt.hide_progress { println!("\t\t\t\t(Total time: {}s)\n", time_all.elapsed_ms() as f32/1000.0); }
+
+	println!("================== REPORT ==================");
+	println!("input sequences: {}", rep_sequences);
+	println!("input p-blocks: {}", rep_pblocks);
+	println!("pairs from input blocks: {}", rep_input_pairs);
+	println!("pairs with new blocks: {}", rep_add_pairs);
+	println!("categories:");
+	println!("    2-2: \t{} \t({:.2}%)", rep_count[2], rep_count[2] as f64 / (rep_input_pairs as f64 + rep_add_pairs as f64) * 100.0);
+	println!("    2-1-1: \t{} \t({:.2}%)", rep_count[3], rep_count[3] as f64 / (rep_input_pairs as f64 + rep_add_pairs as f64) * 100.0);
+	println!("    1-1-1-1: \t{} \t({:.2}%)", rep_count[4], rep_count[4] as f64 / (rep_input_pairs as f64 + rep_add_pairs as f64) * 100.0);
+	println!("    3-1: \t{} \t({:.2}%)", rep_count[0], rep_count[0] as f64 / (rep_input_pairs as f64 + rep_add_pairs as f64) * 100.0);
+	println!("    4: \t\t{} \t({:.2}%)", rep_count[1], rep_count[1] as f64 / (rep_input_pairs as f64 + rep_add_pairs as f64) * 100.0);
+	println!("quartet trees: {}", rep_trees);
+	let max_coverage = (rep_sequences*(rep_sequences-1)*(rep_sequences-2)*(rep_sequences-3)) as f64 / 24.0;
+	println!("coverage: {:.2}%", rep_trees_unique as f64 / max_coverage * 100.0);
+	println!("============================================");
+
     Ok(())
 }
 

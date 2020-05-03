@@ -34,6 +34,28 @@ impl PBlock {
 		PBlock(input)
 	}
 
+	/// Count the number of pairs in the different categories (all different, weak split, ...)
+	/// Order of return values: 3-1, 4, 2-2, 2-1-1, 1-1-1-1
+	pub fn count(pairs: &Vec<(PBlock, PBlock)>) -> [u64; 5] {
+		let mut result_sum = [0; 5];
+
+		for pair in pairs {
+			let dists = PBlock::get_distances(&pair.0, &pair.1);
+			let mut different_dists = HashSet::new();
+			for d in dists.values() {
+				different_dists.insert(d);
+			}
+
+			result_sum[different_dists.len()] += 1;
+			if different_dists.len() == 2 && QTree::new(&pair.0, &pair.1).is_none() {
+				result_sum[0] += 1;
+				result_sum[2] -= 1;
+			}
+		}
+
+		result_sum
+	}
+
 	pub fn read_from_file(filename: &str, blocksize: u32) -> Vec<PBlock> {
 		if blocksize == 0 {
 			return PBlock::read_var_from_file(filename);
@@ -287,7 +309,7 @@ impl PBlock {
 			for (_, dist) in PBlock::get_distances(&blocks[i], &blocks[i+1]) {
 				dists_set.insert(dist);
 			}
-			if dists_set.len() != 1 && dists_set.len() != blocks[i].len() {
+			if true || dists_set.len() != 1 && dists_set.len() != blocks[i].len() {
 				result.push((blocks[i].clone(), blocks[i+1].clone()));
 			}
 		}

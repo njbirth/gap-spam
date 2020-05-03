@@ -50,6 +50,9 @@ pub struct Gaps {
 	/// use only perfect pairs (A/A/B/B)
 	#[structopt(long = "perfect")]
 	pub perfect: bool,
+	/// Hide progress output
+	#[structopt(long = "hide-progress")]
+	pub hide_progress: bool,
 }
 
 // === Options for nwk-binary ==================================================
@@ -66,7 +69,7 @@ pub struct Nwk {
 	/// show paup output
 	#[structopt(short = "v")]
 	pub verbose: bool,
-	// show all found trees (paup only; max-cut always returns one tree)
+	/// show all found trees (paup only; max-cut always returns one tree)
 	#[structopt(long = "all")]
 	pub all: bool
 }
