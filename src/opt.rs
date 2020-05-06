@@ -50,6 +50,9 @@ pub struct Gaps {
 	/// use only perfect pairs (A/A/B/B)
 	#[structopt(long = "perfect")]
 	pub perfect: bool,
+	/// use only imperfect pairs (A/A/B/C)
+	#[structopt(long = "imperfect")]
+	pub imperfect: bool,
 	/// Hide progress output
 	#[structopt(long = "hide-progress")]
 	pub hide_progress: bool,

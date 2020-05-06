@@ -96,7 +96,7 @@ pub fn run(opt: crate::opt::Gaps) -> Result<(), String> {
 		pairs.into_iter().filter(|a| PBlock::perfect_pair(&a.0, &a.1)).collect()
 	}
 	else {
-		pairs.into_iter().filter(|a| QTree::new(&a.0, &a.1).is_some()).collect()
+		pairs.into_iter().filter(|a| QTree::new(&a.0, &a.1).is_some() && (!PBlock::perfect_pair(&a.0, &a.1) || !opt.imperfect)).collect()
 	};
 	if !opt.hide_progress { println!("\t\t\t(Finished in {}s)", sw.elapsed_ms() as f32/1000.0); }
 
