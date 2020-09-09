@@ -1,18 +1,3 @@
-/*	Copyright (C) 2020 - Niklas Birth
-
-This program is free software: you can redistribute it and/or modify
-it under the terms of the GNU General Public License as published by
-the Free Software Foundation, either version 3 of the License, or
-(at your option) any later version.
-
-This program is distributed in the hope that it will be useful,
-but WITHOUT ANY WARRANTY; without even the implied warranty of
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-GNU General Public License for more details.
-
-You should have received a copy of the GNU General Public License
-along with this program.  If not, see <https://www.gnu.org/licenses/>. */
-
 use crate::SpacedWord;
 use std::collections::HashMap;
 use needletail;
@@ -43,10 +28,10 @@ impl Sequence {
 		seq_rev = seq_rev.replace("T", "T");
 
 		Sequence {
-			name: name,
-			sequence: sequence,
-			seq_rev: seq_rev,
-			is_rev_comp: is_rev_comp
+			name,
+			sequence,
+			seq_rev,
+			is_rev_comp
 		}
 	}
 
@@ -111,7 +96,7 @@ impl Sequence {
 	            let header = String::from_utf8(seq.id.into_owned()).unwrap();
 	            let sequence = String::from_utf8(seq.seq.into_owned()).unwrap();
 
-	            result.insert(header.clone(), Sequence { name: header, sequence: sequence, seq_rev: seq_rev, is_rev_comp: false });
+	            result.insert(header.clone(), Sequence { name: header, sequence, seq_rev, is_rev_comp: false });
 	        },
 	    )
 	    .expect("parsing failed");
