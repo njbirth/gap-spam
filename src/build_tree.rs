@@ -1,9 +1,8 @@
-use crate::{QTree, tools, opt};
+use crate::{tools, opt};
 use std::collections::HashMap;
 use std::io::{Write, BufRead, BufReader};
 use std::fs::{self, OpenOptions, File};
 use std::process::{Command, Stdio};
-use structopt::StructOpt;
 
 // === max-cut =====================================================================
 
@@ -20,7 +19,7 @@ pub fn max_cut_from_file(filename: &str) -> String {
 	max_cut(&trees)
 }
 
-pub fn max_cut(qtrees: &Vec<String>) -> String {
+pub fn max_cut(qtrees: &[String]) -> String {
 	// Replace species names by ids
 	let id_dict = build_id_dict(&qtrees);
 	let qtrees = replace_names_to_ids(qtrees, &id_dict);
@@ -70,7 +69,7 @@ fn replace_ids_to_names(nwk: &str, dict: &HashMap<String, u32>) -> String {
 	nwk_new
 }
 
-fn replace_names_to_ids(qtrees: &Vec<String>, dict: &HashMap<String, u32>) -> Vec<String> {
+fn replace_names_to_ids(qtrees: &[String], dict: &HashMap<String, u32>) -> Vec<String> {
 	let mut qtrees_new = Vec::new();
 	
 	for nwk in qtrees {
@@ -81,14 +80,14 @@ fn replace_names_to_ids(qtrees: &Vec<String>, dict: &HashMap<String, u32>) -> Ve
 	qtrees_new
 }
 
-fn build_id_dict(qtrees: &Vec<String>) -> HashMap<String, u32> {
+fn build_id_dict(qtrees: &[String]) -> HashMap<String, u32> {
 	let mut dict = HashMap::new();
 	let mut cur_id = 0;
 
 	for tree in qtrees {
 		for name in split_nwk(tree) {
 			if !dict.contains_key(&name) {
-				dict.insert(String::from(name), cur_id);
+				dict.insert(name, cur_id);
 				cur_id += 1;
 			}
 		}
@@ -105,7 +104,7 @@ fn split_nwk(nwk: &str) -> Vec<String> {
 	nwk = nwk.replace("))", "");
 
 	let mut result = Vec::new();
-	for name in nwk.split(",") {
+	for name in nwk.split(',') {
 		result.push(String::from(name));
 	}
 	result
@@ -169,9 +168,8 @@ pub fn pars(opt: opt::Nwk) -> String {
 
 	// Result
 	if opt.all {
-		lines.into_iter()
-			.map(|s| s.unwrap())
-			.collect()
+		lines.map(|s| s.unwrap())
+			.collect::<Vec<String>>()
 			.join("\n")
 	}
 	else {
