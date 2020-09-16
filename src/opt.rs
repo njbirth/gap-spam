@@ -2,6 +2,13 @@ use structopt::StructOpt;
 
 // === Options for gaps-binary =================================================
 
+fn check_format(input: &str) -> Result<String, String> {
+	match input {
+		"nwk" | "phylip" | "paup" => Ok(input.to_string()),
+		_ => Err(input.to_string())
+	}
+}
+
 #[derive(Debug, StructOpt)]
 #[structopt(name = "gaps", about = "Mind the gap!")]
 pub struct Gaps {
@@ -15,9 +22,9 @@ pub struct Gaps {
 	#[structopt(short = "o", default_value = "outfile")]
 	pub outfile: String,
 
-	/// Write outfile for phylip pars instead of writing quartet trees
-	#[structopt(long = "pars")]
-	pub pars: bool,
+	/// Output format (nwk|phylip|paup)
+	#[structopt(long = "format", default_value = "paup", parse(try_from_str = check_format))]
+	pub format: String,
 	/// P block size (0 for variable size; always 4 if --pars is not set)
 	#[structopt(short = "s", default_value = "0")]
 	pub blocksize: u32,

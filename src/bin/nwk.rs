@@ -1,4 +1,4 @@
-use gaps_rs::{opt::Nwk, tools, build_tree::{pars, max_cut_from_file}};
+use gaps_rs::{opt::Nwk, build_tree::{pars, max_cut_from_file}};
 use structopt::StructOpt;
 
 fn main() {

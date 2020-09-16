@@ -1,6 +1,5 @@
 use crate::{Sequence, SpacedWord, QTree};
 use std::fs::File;
-use std::io::Write;
 use std::io::{BufRead, BufReader};
 use std::collections::{HashMap, HashSet};
 use std::ops::Index;
@@ -300,75 +299,6 @@ impl PBlock {
 		}
 
 		result
-	}
-
-	pub fn save_pairs_to_pars_file(pairs: &Vec<(PBlock, PBlock)>, filename: &str) {
-		// Collect species
-		let mut species = HashSet::new();
-		for pair in pairs {
-			for name in pair.0.get_sequence_names() {
-				species.insert(String::from(name));
-			}
-		}
-		let species: Vec<String> = species.iter().cloned().collect();
-
-		// Build lines
-		let mut output: HashMap<String, Vec<&str>> = HashMap::new();
-		let padding = ["", "", " ", "  ", "   ", "    ", "     ", "      ", "       "];
-		for i in 0..species.len() {
-			if species[i].len() >= 9 {
-				output.insert(species[i].clone(), vec![&species[i][0..9]]);
-			}
-			else {
-				output.insert(species[i].clone(), vec![&species[i]]);
-				output.get_mut(&species[i]).unwrap().push(padding[9-species[i].len()]);
-			}
-		}
-
-		for pair in pairs {
-			//let subst = ["A", "B", "C", "D", "E", "F", "G", "H", "?"]; // alphabetisch
-			//let subst = ["A", "C", "G", "T", "R", "Y", "M", "K", "?"]; // DNA (mit Makros)
-			let subst = ["A", "R", "N", "D", "C", "Q", "E", "G", "?"]; // protein (ohne Makros)
-			let mut subst_index = 0;
-			let distances: HashMap<String, i64> = PBlock::get_distances(&pair.0, &pair.1);
-			let mut dists_replaced: HashMap<String, &str> = HashMap::new();
-			for key in pair.0.get_sequence_names() {
-				dists_replaced.insert(String::from(key), "0");
-			}
-
-			for (seq, dist) in distances.iter() {
-				if dists_replaced[seq] != "0" {
-					continue;
-				}
-				for seq2 in pair.0.get_sequence_names() {
-					if distances[seq2] == *dist {
-						dists_replaced.insert(seq2.to_string(), subst[subst_index]);
-					}
-				}
-				if subst_index < subst.len()-1 {
-					subst_index += 1;
-				}
-			}
-
-			// Ausgabezeilen ergänzen
-			for s in &species {
-				let c = dists_replaced.get(s);
-				if c.is_none() {
-					output.get_mut(s).unwrap().push("?");
-				}
-				else {
-					output.get_mut(s).unwrap().push(c.unwrap());
-				}
-			}
-		}
-
-		// Write to file
-		let mut f = File::create(filename).expect("Unable to create file");
-		f.write_all(format!("{} {}\n", species.len(), pairs.len()).as_bytes()).expect("Unable to write data");
-		for (_, value) in &output {
-			f.write_all(value.join(" ").as_bytes()).expect("Unable to write data");
-			f.write_all(b"\n").expect("Unable to write data");
-		}
 	}
 
 	pub fn len(&self) -> usize {

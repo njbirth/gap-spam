@@ -15,7 +15,7 @@ pub fn run(opt: crate::opt::Gaps) -> Result<(), String> {
 	if !opt.hide_progress { print!("- Read PBlock file"); }
 	stdout().flush().unwrap();
 	sw.restart();
-	let blocksize = if opt.pars { opt.blocksize } else { 4 };
+	let blocksize = if opt.format != "nwk" { opt.blocksize } else { 4 };
 	let input: Vec<PBlock> = PBlock::read_from_file(&opt.infile, blocksize);
 	if !opt.hide_progress { println!("\t\t(Finished in {}s)", sw.elapsed_ms() as f32/1000.0); }
 	let rep_pblocks = input.len();
@@ -100,12 +100,13 @@ pub fn run(opt: crate::opt::Gaps) -> Result<(), String> {
 	if !opt.hide_progress { print!("- Save result to file"); }
 	stdout().flush().unwrap();
 	sw.restart();
-	if opt.pars {
-		PBlock::save_pairs_to_pars_file(&pairs, &opt.outfile);
+	match &opt.format[..] {
+		"nwk" => output::to_nwk(&result, &opt.outfile),
+		"phylip" => output::to_phylip_pars(&pairs, &opt.outfile),
+		"paup" => output::to_paup(&pairs, &opt.outfile),
+		_ => panic!("Invalid format (should have been caught by structopt)")
 	}
-	else {
-		QTree::save_to_file(&result, &opt.outfile);
-	}
+
 	if !opt.hide_progress { println!("\t\t(Finished in {}s)", sw.elapsed_ms() as f32/1000.0); }
 
 	if !opt.hide_progress { println!("\t\t\t\t(Total time: {}s)\n", time_all.elapsed_ms() as f32/1000.0); }
@@ -136,6 +137,8 @@ pub mod build_tree;
 pub mod opt;
 
 pub mod tools;
+
+pub mod output;
 
 
 mod qtree;

@@ -1,6 +1,4 @@
 use std::fmt;
-use std::fs::File;
-use std::io::Write;
 use std::cmp::Ordering;
 use crate::{PBlock, SpacedWord};
 
@@ -94,13 +92,6 @@ impl QTree {
 			blocks: (block.clone(), block),
 			pair1: (0, 1),
 			pair2: (2, 3)
-		}
-	}
-
-	pub fn save_to_file(qtrees: &Vec<QTree>, filename: &str) {
-		let mut f = File::create(filename).expect("Unable to create file");
-		for i in 0..qtrees.len() {
-			f.write_all(format!("{}\n", qtrees[i]).as_bytes()).expect("Unable to write data");
 		}
 	}
 
