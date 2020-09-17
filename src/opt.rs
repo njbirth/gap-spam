@@ -53,12 +53,12 @@ pub struct Gaps {
 // === Options for nwk-binary ==================================================
 
 #[derive(StructOpt, Debug)]
-#[structopt(name = "nwk", about = "Construct a tree from quartet trees (requires quartet-max-cut to be in path)")]
+#[structopt(name = "nwk", about = "Constructs a tree from a gaps outfile")]
 pub struct Nwk {
-	/// use parsimony (requires an input file for phylip pars; paup and seqmagick have to be in path)
-	#[structopt(long = "pars")]
-	pub pars: bool,
-	/// input file with quartet trees
+	/// Method for building trees (max-cut|phylip|paup); requires "max-cut-tree"/"phylip pars"/"paup" to be in path
+	#[structopt(long = "method", default_value = "paup", parse(try_from_str = check_format))]
+	pub method: String,
+	/// input file
 	#[structopt()]
 	pub infile: String,
 	/// show paup output

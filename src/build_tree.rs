@@ -1,7 +1,7 @@
 use crate::{tools, opt};
 use std::collections::HashMap;
 use std::io::{Write, BufRead, BufReader};
-use std::fs::{self, OpenOptions, File};
+use std::fs::{self, File};
 use std::process::{Command, Stdio};
 
 // === max-cut =====================================================================
@@ -122,38 +122,19 @@ pub fn pars(opt: opt::Nwk) -> String {
 	let tmp_folder = tools::create_tmp_folder();
 
 	// Some files
-	let mut phy_f = tmp_folder.clone();
-	phy_f.push("pars.phy");
 	let mut nex_f = tmp_folder.clone();
 	nex_f.push("pars.nex");
 	let mut nwk_f = tmp_folder.clone();
 	nwk_f.push("pars.nwk");
 
-	// infile -> tmp/pars.phy
-	fs::copy(opt.infile, phy_f).unwrap();
+	// infile -> tmp/pars.nex
+	fs::copy(opt.infile, nex_f).unwrap();
 
-	// tmp/pars.phy -> tmp/pars.nex (with seqmagick)
-	let mut seqmagick = Command::new("seqmagick")
-		.arg("convert")
-		.arg("pars.phy")
-		.arg("pars.nex")
-		.arg("--alphabet")
-		.arg("protein")
-		.current_dir(&tmp_folder)
-		.stdout(Stdio::null())
-		.stderr(Stdio::null())
-		.spawn().unwrap();
-
-	seqmagick.wait().unwrap();
-
-	// Append to pars.nex
-	let mut nexfile = OpenOptions::new().append(true).open(nex_f).expect("Unable to open file");
-	nexfile.write_all(b"\nbegin paup;\nset maxtrees=1000;\nset increase=auto;\nHSearch addseq=random nreps=20;\nSaveTrees format=newick file=pars.nwk replace=yes;\nquit;\nend;").expect("Unable to write nexfile");
-
-	// tmp/pars.nex -> tmp/pars.nwk (with paup)
+	// tmp/pars.nex -> tmp/pars.nwk
 	let stdout = if opt.verbose { Stdio::inherit() } else { Stdio::null() };
 	let mut paup = Command::new("paup")
 		.arg("pars.nex")
+		.arg("-n")
 		.current_dir(&tmp_folder)
 		.stdout(stdout)
 		.spawn().unwrap();
