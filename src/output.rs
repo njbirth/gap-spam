@@ -57,29 +57,30 @@ fn format_matrix(pairs: &Vec<(PBlock, PBlock)>, name_len: i32) -> (usize, usize,
         name_len as usize
     } - 1;
 
-    let species: Vec<String> = species.into_iter()
-        .map(|name| {
-            if name.len() <= name_len {
-                format!("{}{}", name, " ".repeat(name_len - name.len()))
-            }
-            else {
-                String::from(&name[..name_len])
-            }
-        })
-        .collect();
+    let species: Vec<String> = species.into_iter().collect();
 
     // Build lines
-    let mut output: HashMap<String, Vec<&str>> = HashMap::new();
-    for i in 0..species.len() {
-        output.insert(species[i].clone(), vec![&species[i]]);
+    let mut output: HashMap<String, Vec<String>> = HashMap::new();
+    for name in &species {
+        let name_padded = if name.len() <= name_len {
+            format!("{}{}", name, " ".repeat(name_len-name.len()))
+        }
+        else {
+            name[0..name_len].to_string()
+        };
+        output.insert(name.to_string(), vec![name_padded]);
     }
+
+    let symbols = SYMBOLS.iter()
+        .map(|s| s.to_string())
+        .collect::<Vec<String>>();
 
     for pair in pairs {
         let mut symbol_index = 0;
         let distances: HashMap<String, i64> = PBlock::get_distances(&pair.0, &pair.1);
-        let mut dists_replaced: HashMap<String, &str> = HashMap::new();
+        let mut dists_replaced: HashMap<String, String> = HashMap::new();
         for key in pair.0.get_sequence_names() {
-            dists_replaced.insert(String::from(key), "0");
+            dists_replaced.insert(String::from(key), String::from("0"));
         }
 
         for (seq, dist) in distances.iter() {
@@ -88,23 +89,21 @@ fn format_matrix(pairs: &Vec<(PBlock, PBlock)>, name_len: i32) -> (usize, usize,
             }
             for seq2 in pair.0.get_sequence_names() {
                 if distances[seq2] == *dist {
-                    dists_replaced.insert(seq2.to_string(), SYMBOLS[symbol_index]);
+                    dists_replaced.insert(seq2.to_string(), symbols[symbol_index].clone());
                 }
             }
-            if symbol_index < SYMBOLS.len()-1 {
+            if symbol_index < symbols.len()-1 {
                 symbol_index += 1;
             }
         }
 
-        // Ausgabezeilen ergänzen
+        // Add symbols to output lines
         for s in &species {
-            let c = dists_replaced.get(s);
-            if c.is_none() {
-                output.get_mut(s).unwrap().push(SYMBOLS.last().expect("SYMBOLS array empty"));
-            }
-            else {
-                output.get_mut(s).unwrap().push(c.unwrap());
-            }
+            output.get_mut(s).unwrap().push(
+                dists_replaced.get(s)
+                    .unwrap_or(symbols.last().unwrap())
+                    .to_string()
+            );
         }
     }
 
