@@ -11,7 +11,7 @@ pub struct SpacedWord {
 impl SpacedWord {
 	pub fn new(seq_name: &str, mut position: i64, word: &Option<&str>, pattern: &Option<&str>, rev_comp: bool) -> SpacedWord {
 		if rev_comp {
-			position = position * (-1);
+			position = -position;
 		}
 
 		SpacedWord {

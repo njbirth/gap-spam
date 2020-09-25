@@ -3,7 +3,7 @@ use std::fs::File;
 use std::io::{BufRead, BufReader};
 use std::collections::{HashMap, HashSet};
 use std::ops::Index;
-use needletail;
+//use needletail;
 use smallvec::SmallVec;
 
 #[derive(Debug, Clone)]
@@ -20,7 +20,7 @@ impl PBlock {
 
 	/// Count the number of pairs in the different categories (all different, weak split, ...)
 	/// Order of return values: 3-1, 4, 2-2, 2-1-1, 1-1-1-1
-	pub fn count(pairs: &Vec<(PBlock, PBlock)>) -> [u64; 5] {
+	pub fn count(pairs: &[(PBlock, PBlock)]) -> [u64; 5] {
 		let mut result_sum = [0; 5];
 
 		for pair in pairs {
@@ -52,7 +52,7 @@ impl PBlock {
 	        |_| {},
 	        |seq| {
 	            let header = String::from_utf8(seq.id.into_owned()).unwrap();
-	            let parts: SmallVec<[&str; 5]> = header.split(" ").collect();
+	            let parts: SmallVec<[&str; 5]> = header.split(' ').collect();
 
 				let mut rev_comp = false;
 				if parts[4] == "1)" {
@@ -109,7 +109,7 @@ impl PBlock {
 					continue;
 				}
 
-				let parts: SmallVec<[&str; 5]> = next[1..].split(" ").collect();
+				let parts: SmallVec<[&str; 5]> = next[1..].split(' ').collect();
 
 				let mut rev_comp = false;
 				if parts[4] == "1)" {
@@ -168,7 +168,7 @@ impl PBlock {
 		let mut spaced_words = Vec::new();
 		for i in 0..block.len() {
 			if block[i].rev_comp {
-				spaced_words.push(sequences_filtered[i].spaced_words(pattern, block[i].position as i64 * -1, block[i].position as i64 * -1 + range, true));
+				spaced_words.push(sequences_filtered[i].spaced_words(pattern, -(block[i].position as i64), -(block[i].position as i64) + range, true));
 			}
 			else {
 				spaced_words.push(sequences_filtered[i].spaced_words(pattern, block[i].position as i64, block[i].position as i64 + range, false));
@@ -176,10 +176,8 @@ impl PBlock {
 			if i > 0  {
 				spaced_words[i].sort();
 			}
-			else {
-				if spaced_words[0].len() == 0 {
-					return None;
-				}
+			else if spaced_words[0].is_empty() {
+				return None;
 			}
 		}
 
@@ -241,7 +239,7 @@ impl PBlock {
 		}
 	}
 
-	pub fn blocks_to_string(blocks: &Vec<PBlock>) -> String {
+	pub fn blocks_to_string(blocks: &[PBlock]) -> String {
 		let mut result = String::new();
 		for block in blocks {
 			result.push_str(&format!("{}:{}; {}:{}; {}:{}; {}:{}\n", block[0].seq_name, block[0].position, block[1].seq_name, block[1].position, block[2].seq_name, block[2].position, block[3].seq_name, block[3].position)[..]);
@@ -293,9 +291,9 @@ impl PBlock {
 			for (_, dist) in PBlock::get_distances(&blocks[i], &blocks[i+1]) {
 				dists_set.insert(dist);
 			}
-			if true || dists_set.len() != 1 && dists_set.len() != blocks[i].len() {
+			//if dists_set.len() != 1 && dists_set.len() != blocks[i].len() {
 				result.push((blocks[i].clone(), blocks[i+1].clone()));
-			}
+			//}
 		}
 
 		result
@@ -303,6 +301,10 @@ impl PBlock {
 
 	pub fn len(&self) -> usize {
 		self.0.len()
+	}
+
+	pub fn is_empty(&self) -> bool {
+		self.len() == 0
 	}
 }
 

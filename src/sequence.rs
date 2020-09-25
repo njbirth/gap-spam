@@ -1,6 +1,5 @@
 use crate::SpacedWord;
 use std::collections::HashMap;
-use needletail;
 use needletail::sequence::Sequence as NTSequence;
 
 #[derive(Debug)]
@@ -37,6 +36,10 @@ impl Sequence {
 
 	pub fn len(&self) -> usize {
 		self.sequence.len()
+	}
+
+	pub fn is_empty(&self) -> bool {
+		self.len() == 0
 	}
 
 	pub fn get_rev_comp(&self) -> Sequence {

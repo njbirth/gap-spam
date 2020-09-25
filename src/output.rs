@@ -6,21 +6,21 @@ use std::io::Write;
 // Symbols for parsimony matrix (the last symbol in the array is used for missing information)
 const SYMBOLS: [&str; 9] = ["A", "B", "C", "D", "E", "F", "G", "H", "?"];
 
-pub fn to_nwk(qtrees: &Vec<QTree>, filename: &str) {
+pub fn to_nwk(qtrees: &[QTree], filename: &str) {
     let mut f = File::create(filename).expect("Unable to create file");
-    for i in 0..qtrees.len() {
-        f.write_all(format!("{}\n", qtrees[i]).as_bytes()).expect("Unable to write data");
+    for tree in qtrees {
+        f.write_all(format!("{}\n", tree).as_bytes()).expect("Unable to write data");
     }
 }
 
-pub fn to_phylip_pars(pairs: &Vec<(PBlock, PBlock)>, filename: &str) {
-    let (species, pairs, lines) = format_matrix(pairs, 10);
+pub fn to_phylip_pars(pairs: &[(PBlock, PBlock)], filename: &str) {
+    let (species, pairs, lines) = format_matrix(pairs, 9);
 
     let mut f = File::create(filename).expect("Unable to create file");
     f.write_all(format!("{} {}\n{}", species, pairs, lines).as_bytes()).expect("Unable to write data");
 }
 
-pub fn to_paup(pairs: &Vec<(PBlock, PBlock)>, filename: &str) {
+pub fn to_paup(pairs: &[(PBlock, PBlock)], filename: &str) {
     let (species, pairs, lines) = format_matrix(pairs, -1);
     let head = format!("#NEXUS\n\
                     begin data;\n\
@@ -41,7 +41,7 @@ pub fn to_paup(pairs: &Vec<(PBlock, PBlock)>, filename: &str) {
     f.write_all(format!("{}\n{}\n{}", head, lines, tail).as_bytes()).expect("Unable to write data");
 }
 
-fn format_matrix(pairs: &Vec<(PBlock, PBlock)>, name_len: i32) -> (usize, usize, String) {
+fn format_matrix(pairs: &[(PBlock, PBlock)], name_len: i32) -> (usize, usize, String) {
     // Collect species
     let mut species = HashSet::new();
     for pair in pairs {
@@ -55,7 +55,7 @@ fn format_matrix(pairs: &Vec<(PBlock, PBlock)>, name_len: i32) -> (usize, usize,
     }
     else {
         name_len as usize
-    } - 1;
+    };
 
     let species: Vec<String> = species.into_iter().collect();
 
@@ -101,7 +101,7 @@ fn format_matrix(pairs: &Vec<(PBlock, PBlock)>, name_len: i32) -> (usize, usize,
         for s in &species {
             output.get_mut(s).unwrap().push(
                 dists_replaced.get(s)
-                    .unwrap_or(symbols.last().unwrap())
+                    .unwrap_or_else(|| symbols.last().unwrap())
                     .to_string()
             );
         }

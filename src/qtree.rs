@@ -64,9 +64,8 @@ impl QTree {
 		}
 
 		for i in 0..blocks.len()-1 {
-			let tree = QTree::new(&blocks[i], &blocks[i+1]);
-			if tree.is_some() {
-				result.push(tree.unwrap());
+			if let Some(tree) = QTree::new(&blocks[i], &blocks[i+1]) {
+				result.push(tree);
 			}
 		}
 
@@ -79,7 +78,7 @@ impl QTree {
 		nwk = nwk.replace("),(", ",");
 		nwk = nwk.replace("((", "");
 		nwk = nwk.replace("))", "");
-		let split: Vec<&str> = nwk.split(",").collect();
+		let split: Vec<&str> = nwk.split(',').collect();
 
 		let block = PBlock(vec![
 			SpacedWord::new(split[0], 0, &None, &None, false),
@@ -108,13 +107,12 @@ impl QTree {
 		]
 	}
 
-	pub fn from_pairs(pairs: &Vec<(PBlock, PBlock)>) -> Vec<QTree> {
+	pub fn from_pairs(pairs: &[(PBlock, PBlock)]) -> Vec<QTree> {
 		let mut result = Vec::new();
 
 		for pair in pairs {
-			let tree = QTree::new(&pair.0, &pair.1);
-			if tree.is_some() {
-				result.push(tree.unwrap());
+			if let Some(tree) = QTree::new(&pair.0, &pair.1) {
+				result.push(tree);
 			}
 		}
 
