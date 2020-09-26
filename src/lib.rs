@@ -1,4 +1,6 @@
 use stopwatch::Stopwatch;
+use rayon::prelude::*;
+use indicatif::{ParallelProgressIterator, ProgressBar, ProgressStyle};
 use std::io::Write;
 use std::io::stdout;
 
@@ -48,20 +50,30 @@ pub fn run(opt: crate::opt::Gaps) -> Result<(), String> {
 
 	let mut rep_add_pairs = 0;
 	if opt.additional > 0 {
-		if !opt.hide_progress { print!("- Collect additional pairs"); }
 		stdout().flush().unwrap();
 		sw.restart();
-		let mut additional_pairs: Vec<(PBlock, PBlock)> = Vec::new();
 
-		for i in 0..additional_blocks.len() {
-			if !opt.hide_progress { print!("\r- Collect additional pairs\t({}/{})", i, additional_blocks.len()); }
-			stdout().flush().unwrap();
-			let block = additional_blocks[i].clone();
-			let block2 = PBlock::find_matching_block(&block, &sequences, &opt.pattern, opt.range, opt.perfect);
-			if block2.is_some() {
-				additional_pairs.push((block, block2.unwrap()));
-			}
+		let progress_bar = if opt.hide_progress {
+			ProgressBar::hidden()
 		}
+		else {
+			ProgressBar::new(additional_blocks.len() as u64)
+				.with_style(ProgressStyle::default_bar()
+					.template("- Collect additional pairs\t{bar:20}"))
+		};
+
+		let mut additional_pairs = additional_blocks.into_par_iter()
+			.progress_with(progress_bar)
+			.fold(Vec::new, |mut acc, block| {
+				if let Some(block2) = PBlock::find_matching_block(&block, &sequences, &opt.pattern, opt.range, opt.perfect) {
+					acc.push((block, block2));
+				}
+				acc
+			})
+			.reduce(Vec::new, |mut acc, mut v| {
+				acc.append(&mut v);
+				acc
+			});
 
 		rep_add_pairs = additional_pairs.len();
 		pairs.append(&mut additional_pairs);

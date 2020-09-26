@@ -13,6 +13,8 @@ stopwatch = "0.0.7"
 needletail = "0.3.2"
 smallvec = "1.0.0"
 rand = "0.5.5"
+rayon = "1.4.0"
+indicatif = {version = "0.15.0", features = ["rayon"]}
 
 [profile.release]
 debug = true
