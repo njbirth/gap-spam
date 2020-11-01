@@ -4,7 +4,7 @@ use indicatif::{ParallelProgressIterator, ProgressBar, ProgressStyle};
 use std::io::Write;
 use std::io::stdout;
 
-pub fn run(opt: crate::opt::Gaps) -> Result<(), String> {
+pub fn run(opt: crate::opt::Gaps) -> Result<Stats, String> {
 	let time_all = Stopwatch::start_new();
 
 	if !opt.hide_progress { print!("- Read FASTA file"); }
@@ -123,23 +123,58 @@ pub fn run(opt: crate::opt::Gaps) -> Result<(), String> {
 
 	if !opt.hide_progress { println!("\t\t\t\t(Total time: {}s)\n", time_all.elapsed_ms() as f32/1000.0); }
 
-	println!("================== REPORT ==================");
-	println!("input sequences: {}", rep_sequences);
-	println!("input p-blocks: {}", rep_pblocks);
-	println!("pairs from input blocks: {}", rep_input_pairs);
-	println!("pairs with new blocks: {}", rep_add_pairs);
-	println!("categories:");
-	println!("    2-2: \t{} \t({:.2}%)", rep_count[2], rep_count[2] as f64 / (rep_input_pairs as f64 + rep_add_pairs as f64) * 100.0);
-	println!("    2-1-1: \t{} \t({:.2}%)", rep_count[3], rep_count[3] as f64 / (rep_input_pairs as f64 + rep_add_pairs as f64) * 100.0);
-	println!("    1-1-1-1: \t{} \t({:.2}%)", rep_count[4], rep_count[4] as f64 / (rep_input_pairs as f64 + rep_add_pairs as f64) * 100.0);
-	println!("    3-1: \t{} \t({:.2}%)", rep_count[0], rep_count[0] as f64 / (rep_input_pairs as f64 + rep_add_pairs as f64) * 100.0);
-	println!("    4: \t\t{} \t({:.2}%)", rep_count[1], rep_count[1] as f64 / (rep_input_pairs as f64 + rep_add_pairs as f64) * 100.0);
-	println!("quartet trees: {}", rep_trees);
-	let max_coverage = (rep_sequences*(rep_sequences-1)*(rep_sequences-2)*(rep_sequences-3)) as f64 / 24.0;
-	println!("coverage: {:.2}%", rep_trees_unique as f64 / max_coverage * 100.0);
-	println!("============================================");
+	// Return stats
 
-    Ok(())
+	let max_coverage = (rep_sequences*(rep_sequences-1)*(rep_sequences-2)*(rep_sequences-3)) as f64 / 24.0;
+	let blocks_sum = rep_input_pairs as f64 + rep_add_pairs as f64;
+
+    Ok(Stats {
+		sequences: rep_sequences as u64,
+		blocks: rep_pblocks as u64,
+		pairs: rep_input_pairs as u64,
+		new_pairs: rep_add_pairs as u64,
+		pairs_22: rep_count[2],
+		pairs_22_perc: rep_count[2] as f64 / blocks_sum * 100.0,
+		pairs_211: rep_count[3],
+		pairs_211_perc: rep_count[3] as f64 / blocks_sum * 100.0,
+		pairs_1111: rep_count[4],
+		pairs_1111_perc: rep_count[4] as f64 / blocks_sum * 100.0,
+		pairs_31: rep_count[0],
+		pairs_31_perc: rep_count[0] as f64 / blocks_sum * 100.0,
+		pairs_4: rep_count[1],
+		pairs_4_perc: rep_count[1] as f64 / blocks_sum * 100.0,
+		qtrees: rep_trees as u64,
+		coverage: rep_trees_unique as f64 / max_coverage * 100.0,
+		rfdist: -1
+	})
+}
+
+pub struct Stats {
+	// number of input sequences
+	pub sequences: u64,
+	// number of input blocks
+	pub blocks: u64,
+	// number of pairs from to input blocks
+	pub pairs: u64,
+	// number of pairs from an input block with a new block
+	pub new_pairs: u64,
+	// number of pairs of a distance category
+	pub pairs_22: u64,
+	pub pairs_22_perc: f64,
+	pub pairs_211: u64,
+	pub pairs_211_perc: f64,
+	pub pairs_1111: u64,
+	pub pairs_1111_perc: f64,
+	pub pairs_31: u64,
+	pub pairs_31_perc: f64,
+	pub pairs_4: u64,
+	pub pairs_4_perc: f64,
+	// number of quartet trees
+	pub qtrees: u64,
+	// coverage
+	pub coverage: f64,
+	// RF-distance (use -1 if unknown)
+	pub rfdist: i64
 }
 
 // ========================================================
