@@ -144,6 +144,7 @@ pub fn run(opt: crate::opt::Gaps) -> Result<Stats, String> {
 		pairs_4: rep_count[1],
 		pairs_4_perc: rep_count[1] as f64 / blocks_sum * 100.0,
 		qtrees: rep_trees as u64,
+		correct_perc: -1.0,
 		coverage: rep_trees_unique as f64 / max_coverage * 100.0,
 		rfdist: -1
 	})
@@ -172,6 +173,8 @@ pub struct Stats {
 	pub pairs_4_perc: f64,
 	// number of quartet trees
 	pub qtrees: u64,
+	// correct qtress in percent
+	pub correct_perc: f64,
 	// coverage
 	pub coverage: f64,
 	// RF-distance (use -1 if unknown)
@@ -182,7 +185,7 @@ impl Stats {
 	pub fn stats_to_csv(stats: &[Stats], separator: &str) -> String {
 		let header = ["sequences", "blocks", "pairs", "new_pairs", "pairs_22", "pairs_22_perc",
 		"pairs_211", "pairs_211_perc", "pairs_1111", "pairs_1111_perc", "pairs_31", "pairs_31_perc",
-		"pairs_4", "pairs_4_perc", "qtrees", "coverage", "rfdist"];
+		"pairs_4", "pairs_4_perc", "qtrees", "correct_perc", "coverage", "rfdist"];
 
 		let mut content = header.join(separator);
 		for stat in stats {
@@ -209,6 +212,7 @@ impl Stats {
 			self.pairs_4.to_string(),
 			self.pairs_4_perc.to_string(),
 			self.qtrees.to_string(),
+			self.correct_perc.to_string(),
 			self.coverage.to_string(),
 			self.rfdist.to_string()
 		];

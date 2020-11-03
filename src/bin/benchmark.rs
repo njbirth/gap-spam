@@ -47,6 +47,12 @@ fn get_stats(mut opt: opt::Gaps, nwk_file: &str) -> Stats {
     opt.outfile = tmp_outfile.to_str().unwrap().to_string();
     let mut stats = gaps_rs::run(opt.clone()).unwrap();
 
+    // run qcheck if format is max-cut
+    if opt.format == "max-cut" {
+        let correct = gaps_rs::tools::qcheck(&opt.outfile, &opt.fastafile, nwk_file);
+        stats.correct_perc = correct.1 as f64 / (correct.1 as f64 + correct.0 as f64);
+    }
+
     // run nwk
     let tree = match &opt.format[..] {
         "max-cut" => build_tree::max_cut_from_file(&opt.outfile),
