@@ -113,7 +113,7 @@ pub fn run(opt: crate::opt::Gaps) -> Result<Stats, String> {
 	stdout().flush().unwrap();
 	sw.restart();
 	match &opt.format[..] {
-		"nwk" => output::to_nwk(&result, &opt.outfile),
+		"max-cut" => output::to_nwk(&result, &opt.outfile),
 		"phylip" => output::to_phylip_pars(&pairs, &opt.outfile),
 		"paup" => output::to_paup(&pairs, &opt.outfile),
 		_ => panic!("Invalid format (should have been caught by structopt)")
@@ -149,6 +149,7 @@ pub fn run(opt: crate::opt::Gaps) -> Result<Stats, String> {
 	})
 }
 
+#[derive(Debug, Clone)]
 pub struct Stats {
 	// number of input sequences
 	pub sequences: u64,
@@ -175,6 +176,45 @@ pub struct Stats {
 	pub coverage: f64,
 	// RF-distance (use -1 if unknown)
 	pub rfdist: i64
+}
+
+impl Stats {
+	pub fn stats_to_csv(stats: &[Stats], separator: &str) -> String {
+		let header = ["sequences", "blocks", "pairs", "new_pairs", "pairs_22", "pairs_22_perc",
+		"pairs_211", "pairs_211_perc", "pairs_1111", "pairs_1111_perc", "pairs_31", "pairs_31_perc",
+		"pairs_4", "pairs_4_perc", "qtrees", "coverage", "rfdist"];
+
+		let mut content = header.join(separator);
+		for stat in stats {
+			content = format!("{}\n{}", content, stat.to_csv(separator));
+		}
+
+		content
+	}
+
+	fn to_csv(&self, separator: &str) -> String {
+		let values = [
+			self.sequences.to_string(),
+			self.blocks.to_string(),
+			self.pairs.to_string(),
+			self.new_pairs.to_string(),
+			self.pairs_22.to_string(),
+			self.pairs_22_perc.to_string(),
+			self.pairs_211.to_string(),
+			self.pairs_211_perc.to_string(),
+			self.pairs_1111.to_string(),
+			self.pairs_1111_perc.to_string(),
+			self.pairs_31.to_string(),
+			self.pairs_31_perc.to_string(),
+			self.pairs_4.to_string(),
+			self.pairs_4_perc.to_string(),
+			self.qtrees.to_string(),
+			self.coverage.to_string(),
+			self.rfdist.to_string()
+		];
+
+		values.join(separator)
+	}
 }
 
 // ========================================================
