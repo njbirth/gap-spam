@@ -1,5 +1,5 @@
 use std::env;
-use std::fs;
+use std::{fs, str};
 use std::fs::File;
 use std::path::PathBuf;
 use std::process::{Command, Stdio};
@@ -11,6 +11,30 @@ pub fn create_tmp_folder() -> PathBuf {
 	tmp_dir.push(format!("gaps_rs_{}", r));
 	fs::create_dir(&tmp_dir).unwrap();
 	tmp_dir
+}
+
+// Requires qcheck to be in path
+pub fn qcheck(qtreefile: &str, fastafile: &str, nwkfile: &str) -> (u64, u64) {
+	let output = Command::new("qcheck")
+		.arg(fastafile)
+		.arg(qtreefile)
+		.arg(nwkfile)
+		.output()
+		.expect("Failed to execute qcheck");
+
+	let lines = str::from_utf8(&output.stdout).unwrap()
+		.split('\n').collect::<Vec<_>>();
+
+	lines[0..lines.len()-1].iter()
+		.fold((0, 0), |acc, line| {
+			if line == &"0" {
+				return (acc.0 + 1, acc.1);
+			}
+			if line == &"1" {
+				return (acc.0, acc.1 + 1);
+			}
+			panic!("Invalid qcheck output")
+		})
 }
 
 pub fn rfdist(infile: &str) -> u64 {
