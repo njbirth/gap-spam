@@ -14,11 +14,10 @@ fn main() {
         outfile: "will get replaced anyway".to_string(),
         format: opt.format,
         blocksize: opt.blocksize,
-        additional: opt.additional,
         pattern: opt.pattern,
         range: opt.range,
-        perfect: opt.perfect,
-        imperfect: opt.imperfect,
+        strong: opt.strong,
+        weak: opt.weak,
         hide_progress: opt.hide_progress
     };
 
@@ -50,7 +49,7 @@ fn get_stats(mut opt: opt::Gaps, nwk_file: &str) -> Stats {
     // run qcheck if format is max-cut
     if opt.format == "max-cut" {
         let correct = gaps_rs::tools::qcheck(&opt.outfile, &opt.fastafile, nwk_file);
-        stats.correct_perc = correct.1 as f64 / (correct.1 as f64 + correct.0 as f64);
+        stats.correct_perc = correct.1 as f64 / (correct.1 as f64 + correct.0 as f64) * 100.0;
     }
 
     // run nwk

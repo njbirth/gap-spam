@@ -47,8 +47,8 @@ pub fn rfdist(infile: &str) -> u64 {
 	fs::copy(infile, intree_file).unwrap();
 
 	// Execute phylip treedist
-	let mut child = Command::new("phylip")
-		.arg("treedist")
+	let mut child = Command::new("treedist")
+		// .arg("treedist")
 		.current_dir(&tmp_folder)
 		.stdin(Stdio::piped())
 		.stdout(Stdio::piped())

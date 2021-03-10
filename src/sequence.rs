@@ -11,27 +11,24 @@ pub struct Sequence {
 }
 
 impl Sequence {
-	/// TODO: rev_comp should be calculated by needletail; much more efficient
-	/// not too important, because this method is currently not in use
-	pub fn new(name: String, sequence: String, is_rev_comp: bool) -> Sequence {
-		let mut seq_rev = sequence.chars().rev().collect::<String>();
-		
-		seq_rev = seq_rev.replace("A", "c");
-		seq_rev = seq_rev.replace("C", "a");
-		seq_rev = seq_rev.replace("G", "t");
-		seq_rev = seq_rev.replace("T", "g");
-		
-		seq_rev = seq_rev.replace("A", "A");
-		seq_rev = seq_rev.replace("C", "C");
-		seq_rev = seq_rev.replace("G", "G");
-		seq_rev = seq_rev.replace("T", "T");
+	pub fn read_fasta_file(filename: &str) -> HashMap<String, Sequence> {
+		let mut result = HashMap::new();
 
-		Sequence {
-			name,
-			sequence,
-			seq_rev,
-			is_rev_comp
-		}
+		needletail::parse_sequence_path(
+			filename,
+			|_| {},
+			|seq| {
+				// The to_uppercase makes this function quite slow. There might be a better way.
+				let seq_rev = String::from_utf8(seq.reverse_complement()).unwrap().to_uppercase();
+				let header = String::from_utf8(seq.id.into_owned()).unwrap();
+				let sequence = String::from_utf8(seq.seq.into_owned()).unwrap().to_uppercase();
+
+				result.insert(header.clone(), Sequence { name: header, sequence, seq_rev, is_rev_comp: false });
+			},
+		)
+			.expect("parsing failed");
+
+		result
 	}
 
 	pub fn len(&self) -> usize {
@@ -86,24 +83,5 @@ impl Sequence {
 		}
 
 		result
-	}
-
-	pub fn read_fasta_file(filename: &str) -> HashMap<String, Sequence> {
-		let mut result = HashMap::new();
-
-		needletail::parse_sequence_path(
-			filename,
-	        |_| {},
-	        |seq| {
-	        	let seq_rev = String::from_utf8(seq.reverse_complement()).unwrap();
-	            let header = String::from_utf8(seq.id.into_owned()).unwrap();
-	            let sequence = String::from_utf8(seq.seq.into_owned()).unwrap();
-
-	            result.insert(header.clone(), Sequence { name: header, sequence, seq_rev, is_rev_comp: false });
-	        },
-	    )
-	    .expect("parsing failed");
-
-	    result
 	}
 }

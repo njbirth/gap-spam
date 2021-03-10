@@ -3,7 +3,6 @@ use std::fs::File;
 use std::io::{BufRead, BufReader};
 use std::collections::{HashMap, HashSet};
 use std::ops::Index;
-//use needletail;
 use smallvec::SmallVec;
 
 #[derive(Debug, Clone)]
@@ -16,28 +15,6 @@ impl PBlock {
 		});
 
 		PBlock(input)
-	}
-
-	/// Count the number of pairs in the different categories (all different, weak split, ...)
-	/// Order of return values: 3-1, 4, 2-2, 2-1-1, 1-1-1-1
-	pub fn count(pairs: &[(PBlock, PBlock)]) -> [u64; 5] {
-		let mut result_sum = [0; 5];
-
-		for pair in pairs {
-			let dists = PBlock::get_distances(&pair.0, &pair.1);
-			let mut different_dists = HashSet::new();
-			for d in dists.values() {
-				different_dists.insert(d);
-			}
-
-			result_sum[different_dists.len()] += 1;
-			if different_dists.len() == 2 && QTree::new(&pair.0, &pair.1).is_none() {
-				result_sum[0] += 1;
-				result_sum[2] -= 1;
-			}
-		}
-
-		result_sum
 	}
 
 	pub fn read_from_file(filename: &str, blocksize: u32) -> Vec<PBlock> {
@@ -134,8 +111,8 @@ impl PBlock {
 		result
 	}
 
-	/// Returns if block1 and block2 would form a QTree of kind A/A/B/B
-	pub fn perfect_pair(block1: &PBlock, block2: &PBlock) -> bool {
+	/// Returns true if block1 and block2 would form a pair that strongly supports a topology
+	pub fn strong_pair(block1: &PBlock, block2: &PBlock) -> bool {
 		if block1.len() != 4 || block2.len() != 4 || block1.len() != block2.len() {
 			return false;
 		}
@@ -216,7 +193,7 @@ impl PBlock {
 					let new_block = PBlock::from_spaced_words(word_vec.clone());
 					let tree = QTree::new(&block, &new_block);
 					
-					if tree.is_some() && (!perfect || PBlock::perfect_pair(&block, &new_block)) {
+					if tree.is_some() && (!perfect || PBlock::strong_pair(&block, &new_block)) {
 						return Some(new_block);
 					}
 
@@ -244,58 +221,6 @@ impl PBlock {
 		for block in blocks {
 			result.push_str(&format!("{}:{}; {}:{}; {}:{}; {}:{}\n", block[0].seq_name, block[0].position, block[1].seq_name, block[1].position, block[2].seq_name, block[2].position, block[3].seq_name, block[3].position)[..]);
 		}
-		result
-	}
-
-	pub fn split_by_species(mut blocks: Vec<PBlock>) -> Vec<Vec<PBlock>> {
-		blocks.sort_unstable_by(|a, b| {
-			let n = if a.len() < b.len() { a.len() } else { b.len() };
-
-			for i in 0..n {
-				if a[i].seq_name != b[i].seq_name {
-					return a[i].seq_name.cmp(&b[i].seq_name);
-				}
-			}
-
-			a.len().cmp(&b.len())
-		});
-
-		let mut r: Vec<Vec<PBlock>> = vec![vec![blocks[0].clone()]];
-
-		for i in 1..blocks.len() {
-			if blocks[i].get_sequence_names() == blocks[i-1].get_sequence_names() {
-				let l = r.len()-1;
-				r[l].push(blocks[i].clone());
-			}
-			else {
-				r.push(vec![blocks[i].clone()]);
-			}
-		}
-
-		r
-	}
-
-	pub fn pairs_from_vector(blocks: &mut Vec<PBlock>) -> Vec<(PBlock, PBlock)> {
-		blocks.sort_unstable_by(|a, b| {
-			a[0].position.cmp(&b[0].position)
-		});
-
-		let mut result = Vec::new();
-
-		if blocks.len() < 2 {
-			return result;
-		}
-
-		for i in 0..blocks.len()-1 {
-			let mut dists_set = HashSet::new();
-			for (_, dist) in PBlock::get_distances(&blocks[i], &blocks[i+1]) {
-				dists_set.insert(dist);
-			}
-			//if dists_set.len() != 1 && dists_set.len() != blocks[i].len() {
-				result.push((blocks[i].clone(), blocks[i+1].clone()));
-			//}
-		}
-
 		result
 	}
 

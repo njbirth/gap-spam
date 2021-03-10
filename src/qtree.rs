@@ -1,5 +1,4 @@
 use std::fmt;
-use std::cmp::Ordering;
 use crate::{PBlock, SpacedWord};
 
 #[derive(Debug, Clone)]
@@ -124,28 +123,4 @@ impl fmt::Display for QTree {
 	fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         write!(f, "(({},{}),({},{}));", self.blocks.0[self.pair1.0].seq_name, self.blocks.0[self.pair1.1].seq_name, self.blocks.0[self.pair2.0].seq_name, self.blocks.0[self.pair2.1].seq_name)
     }
-}
-
-// Two QTrees are considered equal if they contain the same four sequences.
-// I am aware that this is not the best definition for quartet tree equality,
-// but I needed it to calculate the coverage for the report.
-
-impl PartialEq for QTree {
-    fn eq(&self, other: &Self) -> bool {
-        self.blocks.0.get_sequence_names() == other.blocks.0.get_sequence_names()
-    }
-}
-
-impl Eq for QTree { }
-
-impl Ord for QTree {
-	fn cmp(&self, other: &Self) -> Ordering {
-		self.blocks.0.get_sequence_names().cmp(&other.blocks.0.get_sequence_names())
-	}
-}
-
-impl PartialOrd for QTree {
-	fn partial_cmp(&self, other: &Self) -> Option<Ordering> {
-		Some(self.cmp(other))
-	}
 }

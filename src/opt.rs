@@ -4,7 +4,7 @@ use structopt::StructOpt;
 
 fn check_format(input: &str) -> Result<String, String> {
 	match input {
-		"max-cut" | "phylip" | "paup" => Ok(input.to_string()),
+		"max-cut" | "paup" => Ok(input.to_string()),
 		_ => Err(input.to_string())
 	}
 }
@@ -22,29 +22,26 @@ pub struct Gaps {
 	#[structopt(short = "o", default_value = "outfile")]
 	pub outfile: String,
 
-	/// Output format (nwk|phylip|paup)
+	/// Output format (nwk|paup)
 	#[structopt(long = "format", default_value = "paup", parse(try_from_str = check_format))]
 	pub format: String,
 	/// P block size (0 for variable size; always 4 if --pars is not set)
 	#[structopt(short = "s", default_value = "0")]
 	pub blocksize: u32,
 
-	/// search for additional pairs (use twice for extended search)
-	#[structopt(short = "a", parse(from_occurrences))]
-	pub additional: u8,
-	/// pattern for additional blocks (ignored if -a is not set)
+	/// pattern for new blocks
 	#[structopt(short = "p", long = "pattern", default_value = "1111111")]
 	pub pattern: String,
-	/// range for -a (ignored if -a is not set)
+	/// range for new blocks
 	#[structopt(long = "range", default_value = "500")]
 	pub range: i64,
 
-	/// use only perfect pairs (A/A/B/B)
-	#[structopt(long = "perfect")]
-	pub perfect: bool,
-	/// use only imperfect pairs (A/A/B/C)
-	#[structopt(long = "imperfect")]
-	pub imperfect: bool,
+	/// use only pairs that strongly support a topology
+	#[structopt(long = "strong")]
+	pub strong: bool,
+	/// use only pairs that weakly support a topology
+	#[structopt(long = "weak")]
+	pub weak: bool,
 	/// Hide progress output
 	#[structopt(long = "hide-progress")]
 	pub hide_progress: bool,
@@ -55,7 +52,7 @@ pub struct Gaps {
 #[derive(StructOpt, Debug)]
 #[structopt(name = "nwk", about = "Constructs a tree from a gaps outfile")]
 pub struct Nwk {
-	/// Method for building trees (max-cut|phylip|paup); requires "max-cut-tree"/"phylip pars"/"paup" to be in path
+	/// Method for building trees (max-cut|paup); requires "max-cut-tree"/"paup" to be in path
 	#[structopt(long = "method", default_value = "paup", parse(try_from_str = check_format))]
 	pub method: String,
 	/// input file
@@ -97,29 +94,26 @@ pub struct Benchmark {
 	#[structopt(short = "o", default_value = "results.csv")]
 	pub outfile: String,
 
-	/// Output format (nwk|phylip|paup)
+	/// Output format (nwk|paup)
 	#[structopt(long = "format", default_value = "paup", parse(try_from_str = check_format))]
 	pub format: String,
 	/// P block size (0 for variable size; always 4 if --pars is not set)
 	#[structopt(short = "s", default_value = "0")]
 	pub blocksize: u32,
 
-	/// search for additional pairs (use twice for extended search)
-	#[structopt(short = "a", parse(from_occurrences))]
-	pub additional: u8,
-	/// pattern for additional blocks (ignored if -a is not set)
+	/// pattern for new blocks
 	#[structopt(short = "p", long = "pattern", default_value = "1111111")]
 	pub pattern: String,
-	/// range for -a (ignored if -a is not set)
+	/// range for new blocks
 	#[structopt(long = "range", default_value = "500")]
 	pub range: i64,
 
-	/// use only perfect pairs (A/A/B/B)
-	#[structopt(long = "perfect")]
-	pub perfect: bool,
-	/// use only imperfect pairs (A/A/B/C)
-	#[structopt(long = "imperfect")]
-	pub imperfect: bool,
+	/// use only pairs that strongly support a topology
+	#[structopt(long = "strong")]
+	pub strong: bool,
+	/// use only pairs that weakly support a topology
+	#[structopt(long = "weak")]
+	pub weak: bool,
 	/// Hide progress output
 	#[structopt(long = "hide-progress")]
 	pub hide_progress: bool,
