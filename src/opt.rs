@@ -25,9 +25,6 @@ pub struct Gaps {
 	/// Output format (nwk|paup)
 	#[structopt(long = "format", default_value = "paup", parse(try_from_str = check_format))]
 	pub format: String,
-	/// P block size (0 for variable size; always 4 if --pars is not set)
-	#[structopt(short = "s", default_value = "0")]
-	pub blocksize: u32,
 
 	/// pattern for new blocks
 	#[structopt(short = "p", long = "pattern", default_value = "1111111")]
@@ -97,9 +94,6 @@ pub struct Benchmark {
 	/// Output format (nwk|paup)
 	#[structopt(long = "format", default_value = "paup", parse(try_from_str = check_format))]
 	pub format: String,
-	/// P block size (0 for variable size; always 4 if --pars is not set)
-	#[structopt(short = "s", default_value = "0")]
-	pub blocksize: u32,
 
 	/// pattern for new blocks
 	#[structopt(short = "p", long = "pattern", default_value = "1111111")]

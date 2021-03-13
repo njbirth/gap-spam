@@ -13,7 +13,6 @@ fn main() {
         fastafile: opt.fastafile,
         outfile: "will get replaced anyway".to_string(),
         format: opt.format,
-        blocksize: opt.blocksize,
         pattern: opt.pattern,
         range: opt.range,
         strong: opt.strong,

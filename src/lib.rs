@@ -23,8 +23,7 @@ pub fn run(opt: crate::opt::Gaps) -> Result<Stats, String> {
 
 	stdout().flush().unwrap();
 	sw.restart();
-	let blocksize = if opt.format != "nwk" { opt.blocksize } else { 4 };
-	let blocks: Vec<PBlock> = PBlock::read_from_file(&opt.infile, blocksize);
+	let blocks: Vec<PBlock> = PBlock::read_from_file(&opt.infile);
 
 	if !opt.hide_progress { println!("\t\t(Finished in {}s)\n  => {} input blocks", sw.elapsed_ms() as f32/1000.0, blocks.len()); }
 

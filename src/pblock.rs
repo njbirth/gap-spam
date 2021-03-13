@@ -1,6 +1,4 @@
 use crate::{Sequence, SpacedWord, QTree};
-use std::fs::File;
-use std::io::{BufRead, BufReader};
 use std::collections::{HashMap, HashSet};
 use std::ops::Index;
 use smallvec::SmallVec;
@@ -17,11 +15,7 @@ impl PBlock {
 		PBlock(input)
 	}
 
-	pub fn read_from_file(filename: &str, blocksize: u32) -> Vec<PBlock> {
-		if blocksize == 0 {
-			return PBlock::read_var_from_file(filename);
-		}
-
+	pub fn read_from_file(filename: &str) -> Vec<PBlock> {
 		let mut words: Vec<SpacedWord> = Vec::new();
 
 		needletail::parse_sequence_path(
@@ -39,65 +33,15 @@ impl PBlock {
 				words.push(SpacedWord::new(parts[0], parts[2].parse().unwrap(), &None, &None, rev_comp));
 	        },
 	    )
-	    .expect("parsing failed");
+	    .expect("parsing of block file failed");
 
-		let mut result: Vec<PBlock> = Vec::new();
-
-		let mut it = words.into_iter();
-		loop {
-			let next = it.next();
-			if next.is_none() {
-				break;
-			}
-
-			let mut tmp = vec![next.unwrap()];
-			for _i in 0..blocksize-1 {
-				tmp.push(it.next().unwrap());
-			}
-
-			result.push(PBlock::from_spaced_words(tmp));
+		if words.len() % 4 != 0 {
+			panic!("Number of spaced words in input file is not divisible by 4.");
 		}
 
-		result
-	}
-
-	fn read_var_from_file(filename: &str) -> Vec<PBlock> {
-		let f = File::open(filename).expect("Unable to open file");
-		let r = BufReader::new(f);
-		let mut lines = r.lines();
-
-		let mut result: Vec<PBlock> = Vec::new();
-
-		loop {
-			let mut tmp_vec = Vec::new();
-
-			loop {
-				let next = lines.next();
-				if next.is_none() {
-					return result;
-				}
-
-				let next = next.unwrap().unwrap();
-				if &next == "" {
-					lines.next();
-					break;
-				}
-				if &next[0..1] != ">" {
-					continue;
-				}
-
-				let parts: SmallVec<[&str; 5]> = next[1..].split(' ').collect();
-
-				let mut rev_comp = false;
-				if parts[4] == "1)" {
-					rev_comp = true;
-				}
-
-				tmp_vec.push(SpacedWord::new(parts[0], parts[2].parse().unwrap(), &None, &None, rev_comp));
-			}
-
-			result.push(PBlock::from_spaced_words(tmp_vec));
-		}
+		words.chunks(4)
+			.map(|chunk| PBlock::from_spaced_words(chunk.to_owned()))
+			.collect()
 	}
 
 	pub fn get_sequence_names(&self) -> Vec<&String> {
