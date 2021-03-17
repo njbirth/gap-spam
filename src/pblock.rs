@@ -25,12 +25,7 @@ impl PBlock {
 	            let header = String::from_utf8(seq.id.into_owned()).unwrap();
 	            let parts: SmallVec<[&str; 5]> = header.split(' ').collect();
 
-				let mut rev_comp = false;
-				if parts[4] == "1)" {
-					rev_comp = true;
-				}
-
-				words.push(SpacedWord::new(parts[0], parts[2].parse().unwrap(), &None, &None, rev_comp));
+				words.push(SpacedWord::new(parts[0], parts[2].parse().unwrap(), &None, &None, parts[4] == "1)").unwrap());
 	        },
 	    )
 	    .expect("parsing of block file failed");

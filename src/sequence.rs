@@ -18,10 +18,9 @@ impl Sequence {
 			filename,
 			|_| {},
 			|seq| {
-				// The to_uppercase makes this function quite slow. There might be a better way.
-				let seq_rev = String::from_utf8(seq.reverse_complement()).unwrap().to_uppercase();
+				let seq_rev = String::from_utf8(seq.reverse_complement()).unwrap();
 				let header = String::from_utf8(seq.id.into_owned()).unwrap();
-				let sequence = String::from_utf8(seq.seq.into_owned()).unwrap().to_uppercase();
+				let sequence = String::from_utf8(seq.seq.into_owned()).unwrap();
 
 				result.insert(header.clone(), Sequence { name: header, sequence, seq_rev, is_rev_comp: false });
 			},
@@ -71,15 +70,16 @@ impl Sequence {
 		let seq = if reverse { &self.seq_rev } else { &self.sequence };
 
 		for i in min_pos..max_pos - pat_len {
-			result.push(
-				SpacedWord::new(
+			if let Some(word) = SpacedWord::new(
 					&self.name,
 					i as i64,
 					&Some(&seq[(i as usize)..(i+pat_len) as usize]),
 					&Some(pattern),
 					self.is_rev_comp
-				)
-			);
+				) {
+				result.push(word);
+			}
+
 		}
 
 		result
