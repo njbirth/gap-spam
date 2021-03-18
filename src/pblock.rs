@@ -1,5 +1,5 @@
 use crate::{Sequence, SpacedWord, QTree};
-use std::collections::{HashMap, HashSet};
+use std::collections::HashMap;
 use std::ops::Index;
 use smallvec::SmallVec;
 
@@ -40,13 +40,10 @@ impl PBlock {
 	}
 
 	pub fn get_sequence_names(&self) -> Vec<&String> {
-		let mut result = Vec::new();
-
-		for word in &self.0 {
-			result.push(&word.seq_name);
-		}
+		let mut result = self.0.iter()
+			.map(|word| &word.seq_name)
+			.collect::<Vec<_>>();
 		result.sort_unstable();
-
 		result
 	}
 
@@ -75,19 +72,18 @@ impl PBlock {
 		result
 	}
 
-	pub fn find_matching_block(block: &PBlock, sequences: &HashMap<String, Sequence>, pattern: &str, range: i64, perfect: bool) -> Option<PBlock> {
-		let mut sequences_filtered = Vec::new();
-		for species in block.get_sequence_names() {
-			sequences_filtered.push(&sequences[species]);
-		}
+	pub fn find_matching_block(block: &PBlock, sequences: &HashMap<String, Sequence>, pattern: &str, range: i64, strong_only: bool) -> Option<PBlock> {
+		let sequences = block.get_sequence_names().iter()
+			.map(|name| &sequences[*name])
+			.collect::<Vec<_>>();
 
 		let mut spaced_words = Vec::new();
 		for i in 0..block.len() {
 			if block[i].rev_comp {
-				spaced_words.push(sequences_filtered[i].spaced_words(pattern, -(block[i].position as i64), -(block[i].position as i64) + range, true));
+				spaced_words.push(sequences[i].spaced_words(pattern, -(block[i].position as i64), -(block[i].position as i64) + range, true));
 			}
 			else {
-				spaced_words.push(sequences_filtered[i].spaced_words(pattern, block[i].position as i64, block[i].position as i64 + range, false));
+				spaced_words.push(sequences[i].spaced_words(pattern, block[i].position as i64, block[i].position as i64 + range, false));
 			}
 			if i > 0  {
 				spaced_words[i].sort();
@@ -97,62 +93,32 @@ impl PBlock {
 			}
 		}
 
-		let mut index_min = 0;
-		let mut index_max = spaced_words[0].len() - 1;
-		let mut index_mid = (index_max + index_min ) / 2;
-		
-		loop {
-			if index_mid >= index_max || index_max - index_min <= 1 {
-				return None;
-			}
-			let sw = spaced_words[0][index_mid].clone();
-
+		for sw in &spaced_words[0] {
 			let mut word_vec = vec![sw.clone()];
-			for i in 1..spaced_words.len() {
-				let search = spaced_words[i].binary_search(&sw);
-				
-				// If we don't find the spaced word in a sequence, we can't build a p-block out of this word
-				if search.is_err() {
-					index_mid += 1;
+
+			for words in &spaced_words[1..] {
+				if let Ok(search) = words.binary_search(&sw) {
+					// If we find a spaced word more than one time, we throw it away, because we can't
+					// decide, which of them is a match
+					if search < words.len() - 1 && words[search] == words[search + 1]
+						|| search > 0 && words[search] == words[search - 1] {
+						break;
+					}
+
+					word_vec.push(words[search].clone());
+				}
+				else {
 					break;
 				}
+			}
 
-				// If we find a spaced word more than one time, we throw it away, because we can't
-				// decide, which of them is a match
-				if search.unwrap() < spaced_words[i].len() - 1 && spaced_words[i][search.unwrap()] == spaced_words[i][search.unwrap() + 1]
-				|| search.unwrap() > 0 && spaced_words[i][search.unwrap()] == spaced_words[i][search.unwrap() - 1] {
-					index_mid += 1;
-					break;
-				}
-
-
-				word_vec.push(spaced_words[i][search.unwrap()].clone());
-
-				if i == spaced_words.len() - 1 {
-					let new_block = PBlock::from_spaced_words(word_vec.clone());
-					let tree = QTree::new(&block, &new_block);
-					
-					if tree.is_some() && (!perfect || PBlock::strong_pair(&block, &new_block)) {
-						return Some(new_block);
-					}
-
-					let dists = PBlock::get_distances(&block, &new_block);
-					let mut tmp = HashSet::new();
-					for d in dists.values() {
-						tmp.insert(d);
-					}
-
-					if tmp.len() == 4 {
-						index_max = index_mid;
-						index_mid = (index_max + index_min ) / 2;
-					}
-					else {
-						index_min = index_mid;
-						index_mid = (index_max + index_min ) / 2;
-					}
-				}
+			let new_block = PBlock::from_spaced_words(word_vec);
+			if QTree::new(&block, &new_block).is_some() && (!strong_only || PBlock::strong_pair(&block, &new_block)) {
+				return Some(new_block);
 			}
 		}
+
+		None
 	}
 
 	pub fn blocks_to_string(blocks: &[PBlock]) -> String {

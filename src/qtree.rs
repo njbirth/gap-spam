@@ -10,9 +10,8 @@ pub struct QTree {
 
 impl QTree {
 	pub fn new(p1: &PBlock, p2: &PBlock) -> Option<QTree> {
-		// panic, wenn die PBlocks nicht beide Größe 4 haben
 		if p1.len() != 4 || p2.len() != 4 {
-			panic!("PBlock has size != 4.");
+			return None;
 		}
 		
 		// panic, wenn die PBlocks verschiedene Sequenzen enthalten
