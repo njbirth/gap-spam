@@ -66,20 +66,21 @@ impl QTree {
 	}
 
 	pub fn from_pairs(pairs: &[(PBlock, PBlock)]) -> Vec<QTree> {
-		let mut result = Vec::new();
-
-		for pair in pairs {
-			if let Some(tree) = QTree::new(&pair.0, &pair.1) {
-				result.push(tree);
-			}
-		}
-
-		result
+		pairs.iter()
+			.map(|(b1, b2)| QTree::new(b1, b2))
+			.filter(|tree| tree.is_some())
+			.map(|tree| tree.unwrap())
+			.collect()
 	}
 }
 
 impl fmt::Display for QTree {
 	fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        write!(f, "(({},{}),({},{}));", self.blocks.0[self.pair1.0].seq_name, self.blocks.0[self.pair1.1].seq_name, self.blocks.0[self.pair2.0].seq_name, self.blocks.0[self.pair2.1].seq_name)
+        write!(f, "(({},{}),({},{}));",
+			   self.blocks.0[self.pair1.0].seq_name,
+			   self.blocks.0[self.pair1.1].seq_name,
+			   self.blocks.0[self.pair2.0].seq_name,
+			   self.blocks.0[self.pair2.1].seq_name
+		)
     }
 }

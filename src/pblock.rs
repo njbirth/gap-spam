@@ -8,10 +8,7 @@ pub struct PBlock(pub Vec<SpacedWord>);
 
 impl PBlock {
 	pub fn from_spaced_words(mut input: Vec<SpacedWord>) -> PBlock {
-		input.sort_unstable_by(|a, b| {
-			a.seq_name.cmp(&b.seq_name)
-		});
-
+		input.sort_unstable_by(|a, b| a.seq_name.cmp(&b.seq_name));
 		PBlock(input)
 	}
 
@@ -119,14 +116,6 @@ impl PBlock {
 		}
 
 		None
-	}
-
-	pub fn blocks_to_string(blocks: &[PBlock]) -> String {
-		let mut result = String::new();
-		for block in blocks {
-			result.push_str(&format!("{}:{}; {}:{}; {}:{}; {}:{}\n", block[0].seq_name, block[0].position, block[1].seq_name, block[1].position, block[2].seq_name, block[2].position, block[3].seq_name, block[3].position)[..]);
-		}
-		result
 	}
 
 	pub fn len(&self) -> usize {
