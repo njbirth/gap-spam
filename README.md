@@ -1,6 +1,6 @@
 # gaps_rs
 
-This is a program that utilizes information provided by insertion and deletion events in DNA sequences for the construction of phylogenetic trees. For more information, see:
+This is a program that utilizes information provided by insertion and deletion events in DNA sequences as phylogenetic signals. For more information, see:
 
 Insertions and deletions as phylogenetic signal in alignment-free sequence comparison  
 Niklas Birth, Thomas Dencker, Burkhard Morgenstern  
