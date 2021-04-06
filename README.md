@@ -7,7 +7,7 @@ Niklas Birth, Thomas Dencker, Burkhard Morgenstern
 bioRxiv 2021.02.03.429685; doi: https://doi.org/10.1101/2021.02.03.429685
 
 ---
-**Please note:** This program is more of a prototype. At the current state of development, I would not recommend to use it for actual phylogeny reconstruction.
+**Please note:** This program is a prototype implementation; we wanted to demonstrate that insertions and deletions contain useful information for phylogeny reconstruction. One may use our software in phylogeny studies in addition to established approaches, since it is based on a complementary source of information. However, we do not recommend to use our tool as an alternative to those established methods.
 
 ---
 ## Prerequisites
