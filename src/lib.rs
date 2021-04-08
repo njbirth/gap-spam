@@ -44,7 +44,7 @@ pub fn run(opt: crate::opt::Gaps) -> Result<Stats, String> {
 	let mut pairs = blocks.into_par_iter()
 		.progress_with(progress_bar)
 		.fold(Vec::new, |mut acc, block| {
-			if let Some(block2) = PBlock::find_matching_block(&block, &sequences, &opt.pattern, opt.range, opt.strong) {
+			if let Some(block2) = PBlock::find_matching_block(&block, &sequences, &opt.pattern, opt.range) {
 				acc.push((block, block2));
 			}
 			acc
@@ -54,14 +54,7 @@ pub fn run(opt: crate::opt::Gaps) -> Result<Stats, String> {
 			acc
 		});
 
-	if !opt.hide_progress { println!("\r- Searching for pairs\t\t(Finished in {}s)", sw.elapsed_ms() as f32/1000.0); }
-
-	// =============================================================================================
-
-	if !opt.hide_progress { print!("- Filtering pairs"); }
-
-	stdout().flush().unwrap();
-	sw.restart();
+	// Filter pairs
 	pairs = if opt.strong {
 		pairs.into_iter().filter(|a| PBlock::strong_pair(&a.0, &a.1)).collect()
 	}
@@ -69,17 +62,7 @@ pub fn run(opt: crate::opt::Gaps) -> Result<Stats, String> {
 		pairs.into_iter().filter(|a| QTree::new(&a.0, &a.1).is_some() && (!PBlock::strong_pair(&a.0, &a.1) || !opt.weak)).collect()
 	};
 
-	if !opt.hide_progress { println!("\t\t(Finished in {}s)", sw.elapsed_ms() as f32/1000.0); }
-
-	// =============================================================================================
-
-	if !opt.hide_progress { print!("- Building QTrees"); }
-
-	stdout().flush().unwrap();
-	sw.restart();
-	let result = QTree::from_pairs(&pairs);
-
-	if !opt.hide_progress { println!("\t\t(Finished in {}s)", sw.elapsed_ms() as f32/1000.0); }
+	if !opt.hide_progress { println!("\r- Searching for pairs\t\t(Finished in {}s)", sw.elapsed_ms() as f32/1000.0); }
 
 	// =============================================================================================
 
@@ -88,7 +71,7 @@ pub fn run(opt: crate::opt::Gaps) -> Result<Stats, String> {
 	stdout().flush().unwrap();
 	sw.restart();
 	match &opt.format[..] {
-		"max-cut" => output::to_nwk(&result, &opt.outfile),
+		"max-cut" => output::to_nwk(&QTree::from_pairs(&pairs), &opt.outfile),
 		"phylip" => output::to_phylip_pars(&pairs, &opt.outfile),
 		"paup" => output::to_paup(&pairs, &opt.outfile),
 		_ => panic!("Invalid format (should have been caught by structopt)")

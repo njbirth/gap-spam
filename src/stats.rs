@@ -76,12 +76,12 @@ impl Stats {
 impl fmt::Display for Stats {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         let mut s = String::new();
-        s = format!("{}================== REPORT ==================\n", s);
+        s = format!("{}================== SUMMARY ==================\n", s);
         s = format!("{}Total pairs: \t{}\n", s, self.total_pairs);
         s = format!("{}Strong pairs: \t{} \t({:.2}%)\n", s, self.strong_pairs, self.strong_pairs as f64 / self.total_pairs as f64 * 100.0);
         s = format!("{}Weak pairs: \t{} \t({:.2}%)\n", s, self.weak_pairs, self.weak_pairs as f64 / self.total_pairs as f64 * 100.0);
         s = format!("{}Coverage: \t{:.2}%\n", s, self.coverage_perc);
-        s = format!("{}============================================", s);
+        s = format!("{}=============================================", s);
 
         write!(f, "{}", s)
     }

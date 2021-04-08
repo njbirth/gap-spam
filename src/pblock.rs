@@ -69,7 +69,7 @@ impl PBlock {
 		result
 	}
 
-	pub fn find_matching_block(block: &PBlock, sequences: &HashMap<String, Sequence>, pattern: &str, range: i64, strong_only: bool) -> Option<PBlock> {
+	pub fn find_matching_block(block: &PBlock, sequences: &HashMap<String, Sequence>, pattern: &str, range: i64) -> Option<PBlock> {
 		let sequences = block.get_sequence_names().iter()
 			.map(|name| &sequences[*name])
 			.collect::<Vec<_>>();
@@ -110,7 +110,7 @@ impl PBlock {
 			}
 
 			let new_block = PBlock::from_spaced_words(word_vec);
-			if QTree::new(&block, &new_block).is_some() && (!strong_only || PBlock::strong_pair(&block, &new_block)) {
+			if QTree::new(&block, &new_block).is_some() {
 				return Some(new_block);
 			}
 		}
