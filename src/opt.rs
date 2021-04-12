@@ -22,7 +22,7 @@ pub struct Gaps {
 	#[structopt(short = "o", default_value = "outfile")]
 	pub outfile: String,
 
-	/// Output format (nwk|paup)
+	/// Output format (max-cut|paup)
 	#[structopt(long = "format", default_value = "paup", parse(try_from_str = check_format))]
 	pub format: String,
 

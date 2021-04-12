@@ -26,7 +26,7 @@ cargo run --release -- -i <input file> -f <FASTA file>
 There are some other, optional flags and parameters.
 
 - `-o <output file>`: The name of the ouput file (Default: `outfile`).
-- `--format (nwk|paup)`: The format of the output file (Default: `paup`). `nwk` saves the constructed quartet trees in Newick notation. `paup` generates an outfile that can be used as input for [PAUP*](https://paup.phylosolutions.com). 
+- `--format (max-cut|paup)`: The format of the output file (Default: `paup`). `max-cut` saves the constructed quartet trees in Newick notation. `paup` generates an outfile that can be used as input for [PAUP*](https://paup.phylosolutions.com). 
 - `-p <pattern>`: The pattern of the newly generated blocks (Default: `1111111`).
 - `--range <range>`: The size of the window in which the new blocks are searched (Default: 500).
 - `--hide-progress`: Don't show any progress output. The summary at the end of program execution is still shown. If you don't want any output at all, just send everything to `/dev/null`.

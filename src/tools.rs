@@ -13,9 +13,9 @@ pub fn create_tmp_folder() -> PathBuf {
 	tmp_dir
 }
 
-// Requires qcheck to be in path
+// Requires single_quartet_check to be in path
 pub fn qcheck(qtreefile: &str, fastafile: &str, nwkfile: &str) -> (u64, u64) {
-	let output = Command::new("qcheck")
+	let output = Command::new("single_quartet_check")
 		.arg(fastafile)
 		.arg(qtreefile)
 		.arg(nwkfile)
