@@ -42,6 +42,8 @@ pub struct Gaps {
 	/// Hide progress output
 	#[structopt(long = "hide-progress")]
 	pub hide_progress: bool,
+	#[structopt(long = "print-pairs")]
+	pub print_pairs: bool,
 }
 
 // === Options for nwk-binary ==================================================

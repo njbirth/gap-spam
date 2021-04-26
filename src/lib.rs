@@ -77,6 +77,10 @@ pub fn run(opt: crate::opt::Gaps) -> Result<Stats, String> {
 		_ => panic!("Invalid format (should have been caught by structopt)")
 	}
 
+	if opt.print_pairs {
+		output::pairs_to_file(&pairs, "pairs.txt");
+	}
+
 	if !opt.hide_progress { println!("\t\t(Finished in {}s)", sw.elapsed_ms() as f32/1000.0); }
 
 	// =============================================================================================

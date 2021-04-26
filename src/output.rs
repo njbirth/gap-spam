@@ -13,6 +13,13 @@ pub fn to_nwk(qtrees: &[QTree], filename: &str) {
     }
 }
 
+pub fn pairs_to_file(pairs: &[(PBlock, PBlock)], filename: &str) {
+    let mut f = File::create(filename).expect("Unable to create file");
+    for pair in pairs {
+        f.write_all(PBlock::pair_to_string(pair).as_bytes()).expect("Unable to write data");
+    }
+}
+
 pub fn to_phylip_pars(pairs: &[(PBlock, PBlock)], filename: &str) {
     let (species, pairs, lines) = format_matrix(pairs, 9);
 

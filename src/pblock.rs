@@ -125,6 +125,17 @@ impl PBlock {
 	pub fn is_empty(&self) -> bool {
 		self.len() == 0
 	}
+
+	pub fn pair_to_string((b1, b2): &(PBlock, PBlock)) -> String {
+		let mut s = String::new();
+
+		for i in 0..b1.len() {
+			s = format!("{}{} {}\t{} {}\n", s, b1[i].seq_name, b1[i].position, b2[i].seq_name, b2[i].position);
+		}
+		s = format!("{}\n\n", s);
+
+		s
+	}
 }
 
 impl Index<usize> for PBlock {
