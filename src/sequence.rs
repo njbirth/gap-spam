@@ -52,7 +52,7 @@ impl Sequence {
 			panic!("min_pos > max_pos...sollte nicht passieren");
 		}
 
-		let mut result = Vec::new();
+		let mut result = Vec::with_capacity((max_pos - min_pos) as usize);
 		let self_len = self.len() as i64;
 		let pat_len = pattern.len() as i64;
 

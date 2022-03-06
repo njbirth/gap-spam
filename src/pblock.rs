@@ -74,7 +74,7 @@ impl PBlock {
 			.map(|name| &sequences[*name])
 			.collect::<Vec<_>>();
 
-		let mut spaced_words = Vec::new();
+		let mut spaced_words = Vec::with_capacity(block.len());
 		for i in 0..block.len() {
 			if block[i].rev_comp {
 				spaced_words.push(sequences[i].spaced_words(pattern, -(block[i].position as i64), -(block[i].position as i64) + range, true));

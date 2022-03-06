@@ -43,16 +43,12 @@ pub fn run(opt: crate::opt::Gaps) -> Result<Stats, String> {
 
 	let mut pairs = blocks.into_par_iter()
 		.progress_with(progress_bar)
-		.fold(Vec::new, |mut acc, block| {
+		.filter_map(|block| {
 			if let Some(block2) = PBlock::find_matching_block(&block, &sequences, &opt.pattern, opt.range) {
-				acc.push((block, block2));
-			}
-			acc
+				Some((block, block2))
+			} else { None }
 		})
-		.reduce(Vec::new, |mut acc, mut v| {
-			acc.append(&mut v);
-			acc
-		});
+		.collect::<Vec<(PBlock, PBlock)>>();
 
 	// Filter pairs
 	pairs = if opt.strong {

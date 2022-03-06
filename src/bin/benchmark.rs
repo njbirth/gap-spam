@@ -17,7 +17,8 @@ fn main() {
         range: opt.range,
         strong: opt.strong,
         weak: opt.weak,
-        hide_progress: opt.hide_progress
+        hide_progress: opt.hide_progress,
+        print_pairs: false
     };
 
     let mut stats = Vec::new();
