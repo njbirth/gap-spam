@@ -30,8 +30,8 @@ There are some other, optional flags and parameters.
 - `-p <pattern>`: The pattern of the newly generated blocks (Default: `1111111`).
 - `--range <range>`: The size of the window in which the new blocks are searched (Default: 500).
 - `--hide-progress`: Don't show any progress output. The summary at the end of program execution is still shown. If you don't want any output at all, just send everything to `/dev/null`.
-- `--strong`: Only use block pairs that strongly support a tree topology.
-- `--weak`: Only use block pairs that weakly support a tree topology. (If `--strong` and `--weak` are both set, `--weak` is ignored.)
+- `--all`: Use all block pairs, regardless of strong or weak support (by default, only pairs that strongly support a topology are used).
+- `--weak`: Only use block pairs that weakly support a tree topology. (If `--all` and `--weak` are both set, `--weak` is ignored.)
 
 ### Input file
 

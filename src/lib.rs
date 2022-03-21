@@ -51,11 +51,11 @@ pub fn run(opt: crate::opt::Gaps) -> Result<Stats, String> {
 		.collect::<Vec<(PBlock, PBlock)>>();
 
 	// Filter pairs
-	pairs = if opt.strong {
+	pairs = if !opt.all && !opt.weak {
 		pairs.into_iter().filter(|a| PBlock::strong_pair(&a.0, &a.1)).collect()
 	}
 	else {
-		pairs.into_iter().filter(|a| QTree::new(&a.0, &a.1).is_some() && (!PBlock::strong_pair(&a.0, &a.1) || !opt.weak)).collect()
+		pairs.into_iter().filter(|a| QTree::new(&a.0, &a.1).is_some() && (!PBlock::strong_pair(&a.0, &a.1) || opt.all)).collect()
 	};
 
 	if !opt.hide_progress { println!("\r- Searching for pairs\t\t(Finished in {}s)", sw.elapsed_ms() as f32/1000.0); }

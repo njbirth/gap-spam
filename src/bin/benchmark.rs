@@ -15,7 +15,7 @@ fn main() {
         format: opt.format,
         pattern: opt.pattern,
         range: opt.range,
-        strong: opt.strong,
+        all: opt.all,
         weak: opt.weak,
         hide_progress: opt.hide_progress,
         print_pairs: false

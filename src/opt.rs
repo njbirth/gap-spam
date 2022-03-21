@@ -33,9 +33,9 @@ pub struct Gaps {
 	#[structopt(long = "range", default_value = "500")]
 	pub range: i64,
 
-	/// use only pairs that strongly support a topology
-	#[structopt(long = "strong")]
-	pub strong: bool,
+	/// use all pairs, regardless of strong or weak support
+	#[structopt(long = "all")]
+	pub all: bool,
 	/// use only pairs that weakly support a topology
 	#[structopt(long = "weak")]
 	pub weak: bool,
@@ -104,9 +104,9 @@ pub struct Benchmark {
 	#[structopt(long = "range", default_value = "500")]
 	pub range: i64,
 
-	/// use only pairs that strongly support a topology
-	#[structopt(long = "strong")]
-	pub strong: bool,
+	/// use all pairs, regardless of strong or weak support
+	#[structopt(long = "all")]
+	pub all: bool,
 	/// use only pairs that weakly support a topology
 	#[structopt(long = "weak")]
 	pub weak: bool,
