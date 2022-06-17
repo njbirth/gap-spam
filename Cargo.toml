@@ -8,13 +8,13 @@ default-run = "gaps"
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
-structopt = { version = "0.3" }
+structopt = "0.3.26"
 stopwatch = "0.0.7"
 needletail = "0.3.2"
-smallvec = "1.0.0"
-rand = "0.5.5"
-rayon = "1.4.0"
-indicatif = {version = "0.15.0", features = ["rayon"]}
+smallvec = "1.8.0"
+rand = "0.8.5"
+rayon = "1.5.3"
+indicatif = { version = "0.16.2", features = ["rayon"] }
 
 [profile.release]
 debug = true
