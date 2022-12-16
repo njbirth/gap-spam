@@ -2,7 +2,8 @@
 
 This is a program that utilizes information provided by insertion and deletion events in DNA sequences as phylogenetic signals. For more information, see:
 
-Birth N, Dencker T, Morgenstern B (2022) Insertions and deletions as phylogenetic signal in an alignment-free context.  
+Birth N, Dencker T, Morgenstern B (2022)  
+Insertions and deletions as phylogenetic signal in an alignment-free context.  
 PLOS Computational Biology 18(8): e1010303. https://doi.org/10.1371/journal.pcbi.1010303
 
 ---
