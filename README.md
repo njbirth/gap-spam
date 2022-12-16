@@ -1,4 +1,4 @@
-# About
+# Gap-SpaM
 
 This is a program that utilizes information provided by insertion and deletion events in DNA sequences as phylogenetic signals. For more information, see:
 
